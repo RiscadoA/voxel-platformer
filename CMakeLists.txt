@@ -35,7 +35,7 @@ set (SOURCE_FILES
 	"src/vpg/data/qb_parser.hpp"
 	"src/vpg/data/qb_parser.cpp"
 	"src/vpg/data/model.hpp"
- "src/vpg/data/model.cpp")
+ "src/vpg/data/model.cpp" "src/vpg/data/shader.hpp" "src/vpg/data/shader.cpp")
 	
 add_executable(vpg ${SOURCE_FILES})
 set_target_properties(vpg PROPERTIES

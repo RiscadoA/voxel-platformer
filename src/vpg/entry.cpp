@@ -1,5 +1,6 @@
 #include <vpg/config.hpp>
 #include <vpg/data/manager.hpp>
+#include <vpg/data/shader.hpp>
 #include <vpg/data/model.hpp>
 
 #include <glm/glm.hpp>
@@ -46,12 +47,14 @@ int main(int argc, char** argv) {
     }
 
     // Load assets
+    data::Manager::register_type<data::Shader>();
     data::Manager::register_type<data::Model>();
     if (!data::Manager::init()) {
         std::cerr << "Couldn't initialize data manager\n";
         return 1;
     }
 
+    auto shader = data::Manager::load<data::Shader>("shader.mesh");
     auto model = data::Manager::load<data::Model>("model.chr_knight");
 
     while (!glfwWindowShouldClose(window)) {
@@ -64,6 +67,7 @@ int main(int argc, char** argv) {
     }
 
     // Unload assets
+    shader = nullptr;
     model = nullptr;
     data::Manager::terminate();
 

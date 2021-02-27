@@ -13,6 +13,10 @@ namespace vpg::data {
         static void* load(Asset* asset);
         static void unload(Asset* asset);
 
+        inline const gl::Matrix& get_matrix() const { return this->matrix; }
+        inline const gl::Mesh& get_mesh() const { return this->mesh; }
+        inline const gl::Palette& get_palette() const { return this->palette; }
+
     private:
         Model() = default;
         ~Model() = default;
