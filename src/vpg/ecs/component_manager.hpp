@@ -68,6 +68,8 @@ namespace vpg::ecs {
 
 	template<typename T>
 	inline void ComponentManager::add_component(Entity entity, T&& component) {
+		const char* type_name = typeid(T).name();
+
 		auto it = this->arrays.find(type_name);
 		if (it == this->arrays.end()) {
 			std::cerr << "vpg::ecs::ComponentManager::add_component() failed:\n"
@@ -75,11 +77,13 @@ namespace vpg::ecs {
 			abort();
 		}
 
-		it->second->insert(entity, std::move(component));
+		((ComponentArray<T>*)it->second)->insert(entity, std::move(component));
 	}
 
 	template<typename T>
 	inline void ComponentManager::remove_component(Entity entity) {
+		const char* type_name = typeid(T).name();
+
 		auto it = this->arrays.find(type_name);
 		if (it == this->arrays.end()) {
 			std::cerr << "vpg::ecs::ComponentManager::remove_component() failed:\n"
@@ -87,11 +91,13 @@ namespace vpg::ecs {
 			abort();
 		}
 
-		it->second->remove(entity);
+		((ComponentArray<T>*)it->second)->remove(entity);
 	}
 
 	template<typename T>
 	inline T* ComponentManager::get_component(Entity entity) {
+		const char* type_name = typeid(T).name();
+
 		auto it = this->arrays.find(type_name);
 		if (it == this->arrays.end()) {
 			std::cerr << "vpg::ecs::ComponentManager::get_component() failed:\n"
@@ -99,6 +105,6 @@ namespace vpg::ecs {
 			abort();
 		}
 
-		return it->second->get(entity);
+		return ((ComponentArray<T>*)it->second)->get(entity);
 	}
 }

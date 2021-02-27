@@ -53,6 +53,9 @@ set (SOURCE_FILES
 	"src/vpg/ecs/system_manager.cpp"
 	"src/vpg/ecs/coordinator.hpp"
 	"src/vpg/ecs/coordinator.cpp"
+
+	"src/vpg/ecs/transform.hpp"
+	"src/vpg/ecs/transform.cpp"
 )
 	
 add_executable(vpg ${SOURCE_FILES})

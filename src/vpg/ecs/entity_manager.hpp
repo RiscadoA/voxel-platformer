@@ -11,6 +11,7 @@ namespace vpg::ecs {
     using Entity = uint32_t;
     using Signature = std::bitset<MaxComponents>;
     constexpr Entity MaxEntities = 8192;
+    constexpr Entity NullEntity = MaxEntities;
 
     class EntityManager {
     public:

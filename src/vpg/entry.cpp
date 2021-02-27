@@ -14,17 +14,6 @@
 
 using namespace vpg;
 
-struct Transform {
-    glm::vec3 position, rotation, scale;
-};
-
-class PhysicsSystem : public ecs::System {
-public:
-    PhysicsSystem(ecs::Coordinator& coordinator) {
-        this->signature.set(coordinator.get_component_type<Transform>());
-    }
-};
-
 int main(int argc, char** argv) {
     Config::load(argc, argv);
 
