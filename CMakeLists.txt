@@ -13,10 +13,17 @@ set (SOURCE_FILES
 	"src/vpg/gl/usage.hpp"
 	"src/vpg/gl/vertex_buffer.hpp"
 	"src/vpg/gl/vertex_buffer.cpp"
+	"src/vpg/gl/index_buffer.hpp"
+	"src/vpg/gl/index_buffer.cpp"
 	"src/vpg/gl/vertex_array.hpp"
 	"src/vpg/gl/vertex_array.cpp"
 	"src/vpg/gl/debug.hpp"
 	"src/vpg/gl/debug.cpp"
+
+	"src/vpg/gl/palette.hpp"
+	"src/vpg/gl/palette.cpp"
+	"src/vpg/gl/mesh.hpp"
+	"src/vpg/gl/mesh.cpp"
 )
 	
 add_executable(vpg ${SOURCE_FILES})
