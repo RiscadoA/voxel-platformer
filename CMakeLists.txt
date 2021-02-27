@@ -5,6 +5,7 @@ set (SOURCE_FILES
 	"src/vpg/entry.cpp"
 	"src/vpg/config.hpp"
 	"src/vpg/config.cpp"
+	"src/vpg/endianness.hpp"
 	
 	"src/vpg/gl/camera.hpp"
 	"src/vpg/gl/camera.cpp"
@@ -24,7 +25,17 @@ set (SOURCE_FILES
 	"src/vpg/gl/palette.cpp"
 	"src/vpg/gl/mesh.hpp"
 	"src/vpg/gl/mesh.cpp"
- "src/vpg/data/qb_parser.hpp" "src/vpg/data/qb_parser.cpp" "src/vpg/endianness.hpp")
+
+	"src/vpg/data/manager.hpp"
+	"src/vpg/data/manager.cpp"
+	"src/vpg/data/asset.hpp"
+	"src/vpg/data/asset.cpp"
+	"src/vpg/data/handle.hpp"
+	"src/vpg/data/handle.cpp"
+	"src/vpg/data/qb_parser.hpp"
+	"src/vpg/data/qb_parser.cpp"
+	"src/vpg/data/model.hpp"
+ "src/vpg/data/model.cpp")
 	
 add_executable(vpg ${SOURCE_FILES})
 set_target_properties(vpg PROPERTIES

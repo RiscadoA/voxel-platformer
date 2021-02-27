@@ -1,4 +1,6 @@
 #include <vpg/config.hpp>
+#include <vpg/data/manager.hpp>
+#include <vpg/data/model.hpp>
 
 #include <glm/glm.hpp>
 #include <gl/glew.h>
@@ -33,6 +35,15 @@ int main(int argc, char** argv) {
         nullptr
     );
 
+    // Load assets
+    data::Manager::register_loader(data::Model::Type, data::Model::load, data::Model::unload);
+    if (!data::Manager::init()) {
+        std::cerr << "Couldn't initialize data manager\n";
+        return 1;
+    }
+
+    auto model = data::Manager::load<data::Model>("model.chr_knight");
+
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
@@ -40,6 +51,9 @@ int main(int argc, char** argv) {
 
         glfwSwapBuffers(window);
     }
+
+    // Unload assets
+    data::Manager::terminate();
 
     glfwTerminate();
 
