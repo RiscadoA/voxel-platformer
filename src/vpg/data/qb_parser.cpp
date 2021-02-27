@@ -1,5 +1,5 @@
 #include <vpg/data/qb_parser.hpp>
-#include <vpg/endianness.hpp>
+#include <vpg/memory/endianness.hpp>
 
 #include <iostream>
 
@@ -18,15 +18,15 @@ bool vpg::data::parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream
         return false;
     }
     ifs.read((char*)&color_format, 4);
-    color_format = from_big_endian(color_format);
+    color_format = memory::from_big_endian(color_format);
     ifs.read((char*)&z_axis_orientation, 4);
-    z_axis_orientation = from_big_endian(z_axis_orientation);
+    z_axis_orientation = memory::from_big_endian(z_axis_orientation);
     ifs.read((char*)&compressed, 4);
-    compressed = from_big_endian(compressed);
+    compressed = memory::from_big_endian(compressed);
     ifs.read((char*)&visibility_mask_encoded, 4);
-    visibility_mask_encoded = from_big_endian(visibility_mask_encoded);
+    visibility_mask_encoded = memory::from_big_endian(visibility_mask_encoded);
     ifs.read((char*)&num_matrices, 4);
-    num_matrices = from_big_endian(num_matrices);
+    num_matrices = memory::from_big_endian(num_matrices);
 
     if (num_matrices != 1) {
         std::cerr << "vpg::data::parse_qb() failed:\n"
@@ -43,17 +43,17 @@ bool vpg::data::parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream
     // Read matrix size and position
     uint32_t size_x, size_y, size_z, pos_x, pos_y, pos_z;
     ifs.read((char*)&size_x, 4);
-    size_x = from_big_endian(size_x);
+    size_x = memory::from_big_endian(size_x);
     ifs.read((char*)&size_y, 4);
-    size_y = from_big_endian(size_y);
+    size_y = memory::from_big_endian(size_y);
     ifs.read((char*)&size_z, 4);
-    size_z = from_big_endian(size_z);
+    size_z = memory::from_big_endian(size_z);
     ifs.read((char*)&pos_x, 4);
-    pos_x = from_big_endian(pos_x);
+    pos_x = memory::from_big_endian(pos_x);
     ifs.read((char*)&pos_y, 4);
-    pos_y = from_big_endian(pos_y);
+    pos_y = memory::from_big_endian(pos_y);
     ifs.read((char*)&pos_z, 4);
-    pos_z = from_big_endian(pos_z);
+    pos_z = memory::from_big_endian(pos_z);
 
     // Read matrix data
     matrix.sz = { size_x, size_y, size_z };

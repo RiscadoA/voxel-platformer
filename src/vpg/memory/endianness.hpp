@@ -1,6 +1,6 @@
 #pragma once
 
-namespace vpg {
+namespace vpg::memory {
     template <typename T>
     inline T swap_bytes(T u) {
         union {

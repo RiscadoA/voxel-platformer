@@ -5,7 +5,10 @@ set (SOURCE_FILES
 	"src/vpg/entry.cpp"
 	"src/vpg/config.hpp"
 	"src/vpg/config.cpp"
-	"src/vpg/endianness.hpp"
+
+	"src/vpg/memory/endianness.hpp"
+	"src/vpg/memory/pool.hpp"
+	"src/vpg/memory/pool.cpp"
 	
 	"src/vpg/gl/camera.hpp"
 	"src/vpg/gl/camera.cpp"
@@ -26,16 +29,26 @@ set (SOURCE_FILES
 	"src/vpg/gl/mesh.hpp"
 	"src/vpg/gl/mesh.cpp"
 
+	"src/vpg/gl/renderer.hpp"
+
 	"src/vpg/data/manager.hpp"
 	"src/vpg/data/manager.cpp"
 	"src/vpg/data/asset.hpp"
 	"src/vpg/data/asset.cpp"
 	"src/vpg/data/handle.hpp"
 	"src/vpg/data/handle.cpp"
+	"src/vpg/data/shader.hpp"
+	"src/vpg/data/shader.cpp"
 	"src/vpg/data/qb_parser.hpp"
 	"src/vpg/data/qb_parser.cpp"
 	"src/vpg/data/model.hpp"
- "src/vpg/data/model.cpp" "src/vpg/data/shader.hpp" "src/vpg/data/shader.cpp")
+	"src/vpg/data/model.cpp"
+
+	"src/vpg/scene/graph.hpp"
+	"src/vpg/scene/graph.cpp"
+	"src/vpg/scene/node.hpp"
+	"src/vpg/scene/node.cpp"
+)
 	
 add_executable(vpg ${SOURCE_FILES})
 set_target_properties(vpg PROPERTIES
