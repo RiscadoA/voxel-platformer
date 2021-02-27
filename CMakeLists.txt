@@ -6,7 +6,17 @@ set (SOURCE_FILES
 	"src/vpg/config.hpp"
 	"src/vpg/config.cpp"
 	
-	
+	"src/vpg/gl/camera.hpp"
+	"src/vpg/gl/camera.cpp"
+	"src/vpg/gl/shader.hpp"
+	"src/vpg/gl/shader.cpp"
+	"src/vpg/gl/usage.hpp"
+	"src/vpg/gl/vertex_buffer.hpp"
+	"src/vpg/gl/vertex_buffer.cpp"
+	"src/vpg/gl/vertex_array.hpp"
+	"src/vpg/gl/vertex_array.cpp"
+	"src/vpg/gl/debug.hpp"
+	"src/vpg/gl/debug.cpp"
 )
 	
 add_executable(vpg ${SOURCE_FILES})
