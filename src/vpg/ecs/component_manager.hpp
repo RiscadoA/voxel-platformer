@@ -19,7 +19,7 @@ namespace vpg::ecs {
 		ComponentType get_component_type();
 
 		template <typename T>
-		void add_component(Entity entity, T&& component);
+		T& add_component(Entity entity, T&& component);
 		
 		template <typename T>
 		void remove_component(Entity entity);
@@ -67,7 +67,7 @@ namespace vpg::ecs {
 	}
 
 	template<typename T>
-	inline void ComponentManager::add_component(Entity entity, T&& component) {
+	inline T& ComponentManager::add_component(Entity entity, T&& component) {
 		const char* type_name = typeid(T).name();
 
 		auto it = this->arrays.find(type_name);
@@ -77,7 +77,7 @@ namespace vpg::ecs {
 			abort();
 		}
 
-		((ComponentArray<T>*)it->second)->insert(entity, std::move(component));
+		return ((ComponentArray<T>*)it->second)->insert(entity, std::move(component));
 	}
 
 	template<typename T>

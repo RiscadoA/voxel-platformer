@@ -57,7 +57,7 @@ bool vpg::data::parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream
 
     // Read matrix data
     matrix.sz = { size_x, size_y, size_z };
-    int mat_count = 1;
+    int mat_count = 0;
     matrix.voxels.resize(size_x * size_y * size_z, 0);
     if (compressed == 0) { // If uncompressed
         uint8_t color[4];
@@ -73,7 +73,7 @@ bool vpg::data::parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream
                         std::swap(color[0], color[2]);
                     }
 
-                    int mat_id = 1;
+                    int mat_id = 0;
 
                     for (; mat_id < mat_count; ++mat_id) {
                         if (palette[mat_id].color.r == float(color[0]) / 255.0f &&
@@ -96,7 +96,7 @@ bool vpg::data::parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream
                         palette[mat_id].color.b = float(color[2]) / 255.0f;
                     }
 
-                    matrix.voxels[x * size_y * size_z + y * size_z + z] = mat_id;
+                    matrix.voxels[x * size_y * size_z + y * size_z + z] = mat_id + 1;
                 }
             }
         }

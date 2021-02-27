@@ -64,8 +64,8 @@ void Palette::update() {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void vpg::gl::Palette::bind(unsigned int index) {
-    glBindBufferBase(GL_UNIFORM_BUFFER, index, this->ubo);
+void vpg::gl::Palette::bind(unsigned int index) const {
+    glBindBufferRange(GL_UNIFORM_BUFFER, index, this->ubo, 0, sizeof(Material) * 255);
 }
 
 Material& Palette::operator[](size_t index) {

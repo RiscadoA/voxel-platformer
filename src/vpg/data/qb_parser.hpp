@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vpg/gl/mesh.hpp>
+#include <vpg/gl/matrix.hpp>
 #include <vpg/gl/palette.hpp>
 
 #include <vector>

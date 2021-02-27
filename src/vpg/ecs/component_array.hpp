@@ -17,7 +17,7 @@ namespace vpg::ecs {
 	public:
 		ComponentArray();
 
-		void insert(Entity entity, T&& component);
+		T& insert(Entity entity, T&& component);
 		void remove(Entity entity);
 		T* get(Entity entity);
 
@@ -36,7 +36,7 @@ namespace vpg::ecs {
 	}
 
 	template<typename T>
-	inline void ComponentArray<T>::insert(Entity entity, T&& component) {
+	inline T& ComponentArray<T>::insert(Entity entity, T&& component) {
 		if (this->entity_to_index.find(entity) != this->entity_to_index.end()) {
 			std::cerr << "vpg::ecs::ComponentArray<T>::insert() failed:\n"
 					  << "Entity " << entity << " already has this component\n";
@@ -47,7 +47,7 @@ namespace vpg::ecs {
 		new (&this->components[this->count]) T(std::move(component));
 		this->index_to_entity.emplace(this->count, entity);
 		this->entity_to_index.emplace(entity, this->count);
-		this->count += 1;
+		return this->components[this->count++];
 	}
 
 	template<typename T>

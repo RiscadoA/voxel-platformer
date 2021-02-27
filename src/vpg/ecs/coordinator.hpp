@@ -10,6 +10,9 @@ namespace vpg::ecs {
         Coordinator() = delete;
         ~Coordinator() = delete;
 
+        static void init();
+        static void terminate();
+
         static Entity create_entity();
         static void destroy_entity(Entity entity);
 
@@ -17,7 +20,7 @@ namespace vpg::ecs {
         static void register_component();
         
         template<typename T>
-        static void add_component(Entity entity, T&& component);
+        static T& add_component(Entity entity, T&& component);
 
         template<typename T>
         static void remove_component(Entity entity);
@@ -32,46 +35,47 @@ namespace vpg::ecs {
         static T* register_system(TArgs ... args);
 
     private:
-        static EntityManager entity_manager;
-        static ComponentManager component_manager;
-        static SystemManager system_manager;
+        static EntityManager* entity_manager;
+        static ComponentManager* component_manager;
+        static SystemManager* system_manager;
     };
 
     template<typename T>
     inline void Coordinator::register_component() {
-        Coordinator::component_manager.register_component<T>();
+        Coordinator::component_manager->register_component<T>();
     }
 
     template<typename T>
-    inline void Coordinator::add_component(Entity entity, T&& component) {
-        Coordinator::component_manager.add_component<T>(entity, std::move(component));
-        auto signature = Coordinator::entity_manager.get_signature(entity);
-        signature.set(Coordinator::component_manager.get_component_type<T>(), true);
-        Coordinator::entity_manager.set_signature(entity, signature);
-        Coordinator::system_manager.entity_signature_changed(entity, signature);
+    inline T& Coordinator::add_component(Entity entity, T&& component) {
+        auto& ret = Coordinator::component_manager->add_component<T>(entity, std::move(component));
+        auto signature = Coordinator::entity_manager->get_signature(entity);
+        signature.set(Coordinator::component_manager->get_component_type<T>(), true);
+        Coordinator::entity_manager->set_signature(entity, signature);
+        Coordinator::system_manager->entity_signature_changed(entity, signature);
+        return ret;
     }
     
     template<typename T>
     inline void Coordinator::remove_component(Entity entity) {
-        Coordinator::component_manager.remove_component<T>(entity);
-        auto signature = Coordinator::entity_manager.get_signature(entity);
-        signature.set(Coordinator::component_manager.get_component_type<T>(), false);
-        Coordinator::entity_manager.set_signature(entity, signature);
-        Coordinator::system_manager.entity_signature_changed(entity, signature);
+        Coordinator::component_manager->remove_component<T>(entity);
+        auto signature = Coordinator::entity_manager->get_signature(entity);
+        signature.set(Coordinator::component_manager->get_component_type<T>(), false);
+        Coordinator::entity_manager->set_signature(entity, signature);
+        Coordinator::system_manager->entity_signature_changed(entity, signature);
     }
     
     template<typename T>
     inline T* Coordinator::get_component(Entity entity) {
-        return Coordinator::component_manager.get_component<T>(entity);
+        return Coordinator::component_manager->get_component<T>(entity);
     }
     
     template<typename T>
     inline ComponentType Coordinator::get_component_type() {
-        return Coordinator::component_manager.get_component_type<T>();
+        return Coordinator::component_manager->get_component_type<T>();
     }
     
     template<typename T, typename ... TArgs>
     inline T* Coordinator::register_system(TArgs ... args) {
-        return Coordinator::system_manager.register_system<T>(args...);
+        return Coordinator::system_manager->register_system<T>(args...);
     }
 }

@@ -1,4 +1,6 @@
 #include <vpg/gl/camera.hpp>
+#include <vpg/ecs/transform.hpp>
+
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -6,37 +8,12 @@
 using namespace vpg;
 using namespace vpg::gl;
 
-Camera::Camera(float fov, float aspect_ratio, float z_near, float z_far, glm::vec3 pos, glm::vec2 rot) :
-    fov(fov), aspect_ratio(aspect_ratio), z_near(z_near), z_far(z_far), pos(pos), rot(rot) {
-    this->update();
-}
-
-void Camera::move(const glm::vec3& translation) {
-    this->pos += translation;
-}
-
-void Camera::rotate(const glm::vec2& rotation) {
-    this->set_rotation(this->rot + rotation);
-}
-
-void Camera::set_position(const glm::vec3& position) {
-    this->pos = position;
-}
-
-void Camera::set_rotation(const glm::vec2& rotation) {
-    this->rot = rotation;
-    this->rot.x = glm::clamp(this->rot.x, -glm::pi<float>() / 2 + 0.01f, glm::pi<float>() / 2 - 0.01f);
-    this->rot.y = glm::mod(this->rot.y, 2 * glm::pi<float>());
-}
-
-void vpg::gl::Camera::set_direction(const glm::vec3& dir) {
-    this->rot.x = asin(dir.y);
-
-    
-}
-
-void vpg::gl::Camera::look_at(const glm::vec3& point) {
-
+Camera::Camera(ecs::Entity entity, float fov, float aspect_ratio, float z_near, float z_far) :
+    entity(entity), fov(fov), aspect_ratio(aspect_ratio), z_near(z_near), z_far(z_far) {
+    for (int i = 0; i < 6; ++i) {
+        this->frustum_planes[i] = glm::vec4(0.0f);
+    }
+    this->proj = glm::mat4(1.0f);
 }
 
 void Camera::set_fov(float fov) {
@@ -66,17 +43,16 @@ bool Camera::intersects_frustum(const glm::vec3& point, float radius) const {
 }
 
 void Camera::update() {
-    // Build direction from rotation
-    this->forward = glm::normalize(glm::vec3(
-        glm::sin(this->rot.y) * glm::cos(this->rot.x),
-        glm::sin(this->rot.x),
-        glm::cos(this->rot.y) * glm::cos(this->rot.x)
-    ));
-    this->right = glm::normalize(glm::cross(this->forward, this->get_world_up()));
-    this->up = glm::normalize(-glm::cross(this->forward, this->right));
+    auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
+    if (transform == nullptr) {
+        std::cerr << "vpg::gl:Camera::update() failed:\n"
+                  << "A camera component needs a transform component to work\n";
+        return;
+    }
     
-    this->proj = glm::perspective(this->fov, this->aspect_ratio, this->z_near, this->z_far);
-    this->view = glm::lookAt(this->pos, this->pos + this->forward, this->get_world_up());
+    this->proj = glm::perspective(glm::radians(this->fov), this->aspect_ratio, this->z_near, this->z_far);
+    this->view = glm::inverse(transform->get_global());
+    //this->view = glm::lookAt(glm::vec3(0.0f, 0.0f, -25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     // Extract frustum planes
     auto m = glm::transpose(this->proj * this->view);
@@ -86,4 +62,8 @@ void Camera::update() {
     this->frustum_planes[3] = m[3] - m[1]; // Top
     this->frustum_planes[4] = m[3] + m[2]; // Near
     this->frustum_planes[5] = m[3] - m[2]; // Far
+}
+
+CameraSystem::CameraSystem() {
+    this->signature.set(ecs::Coordinator::get_component_type<Camera>());
 }

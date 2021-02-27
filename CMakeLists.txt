@@ -26,10 +26,13 @@ set (SOURCE_FILES
 
 	"src/vpg/gl/palette.hpp"
 	"src/vpg/gl/palette.cpp"
-	"src/vpg/gl/mesh.hpp"
-	"src/vpg/gl/mesh.cpp"
+	"src/vpg/gl/matrix.hpp"
+	"src/vpg/gl/matrix.cpp"
 
+	"src/vpg/gl/renderable.hpp"
+	"src/vpg/gl/renderable.cpp"
 	"src/vpg/gl/renderer.hpp"
+	"src/vpg/gl/renderer.cpp"
 
 	"src/vpg/ecs/entity_manager.hpp"
 	"src/vpg/data/manager.cpp"

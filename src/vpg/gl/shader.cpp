@@ -130,3 +130,8 @@ int Shader::get_uniform_location(const char* name) const {
     }
     return location;
 }
+
+void vpg::gl::Shader::bind_uniform_buffer(const char* name, unsigned int binding) const {
+    GLuint index = glGetUniformBlockIndex(this->program, name);
+    glUniformBlockBinding(this->program, index, binding);
+}

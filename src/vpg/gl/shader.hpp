@@ -15,6 +15,7 @@ namespace vpg::gl {
         void bind() const;
         int get_attribute_location(const char* name) const;
         int get_uniform_location(const char* name) const;
+        void bind_uniform_buffer(const char* name, unsigned int binding) const;
 
     private:
         Shader(unsigned int program, unsigned int vs, unsigned int fs);

@@ -8,6 +8,8 @@
 #include <vpg/ecs/transform.hpp>
 #include <vpg/ecs/behaviour.hpp>
 
+#include <vpg/gl/renderer.hpp>
+
 #include <glm/glm.hpp>
 #include <gl/glew.h>
 #include <GLFW/glfw3.h>
@@ -30,6 +32,24 @@ public:
         std::cout << "Updated MyBehaviour with dt " << dt << '\n';
     }
 };
+
+static void load_test_scene(glm::vec2 window_sz) {
+    auto entity = ecs::Coordinator::create_entity();
+    auto transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
+    ecs::Coordinator::add_component<gl::Camera>(entity, gl::Camera(
+        entity,
+        (float)Config::get_float("camera.fov", 70.0),
+        window_sz.x / window_sz.y,
+        (float)Config::get_float("camera.near", 0.1),
+        (float)Config::get_float("camera.far", 1000.0)
+    ));
+
+    entity = ecs::Coordinator::create_entity();
+    transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
+    transform->set_position(glm::vec3(0.0f, 0.0f, -50.0f));
+    auto model = data::Manager::load<data::Model>("model.chr_knight");
+    ecs::Coordinator::add_component<gl::Renderable>(entity, gl::Renderable(model));
+}
 
 int main(int argc, char** argv) {
     Config::load(argc, argv);
@@ -74,16 +94,25 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto lighting = data::Manager::load<data::Shader>("shader.lighting");
-
-    auto shader = data::Manager::load<data::Shader>("shader.mesh");
-    auto model = data::Manager::load<data::Model>("model.chr_knight");
-
-    // Init Entity-Component System
+    // Init ECS
+    ecs::Coordinator::init();
     ecs::Coordinator::register_component<ecs::Transform>();
     ecs::Coordinator::register_component<ecs::Behaviour>();
+
+    // Init behaviour system
     auto behaviour_sys = ecs::Coordinator::register_system<ecs::BehaviourSystem>();
 
+    // Init renderer
+    ecs::Coordinator::register_component<gl::Camera>();
+    ecs::Coordinator::register_component<gl::Renderable>();
+    auto camera_sys = ecs::Coordinator::register_system<gl::CameraSystem>();
+    auto renderable_sys = ecs::Coordinator::register_system<gl::RenderableSystem>();
+    auto renderer = new gl::Renderer(camera_sys, renderable_sys);
+
+    load_test_scene(window_sz);
+
+    // TODO: Fix delta time
+    
     auto last_time = (float)glfwGetTime();
     auto delta_time = 0.0f;
     while (!glfwWindowShouldClose(window)) {
@@ -93,8 +122,7 @@ int main(int argc, char** argv) {
         behaviour_sys->update(delta_time);
 
         // Render here
-        lighting->get_shader().bind();
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        renderer->render();
 
         glfwSwapBuffers(window);
 
@@ -104,10 +132,13 @@ int main(int argc, char** argv) {
         last_time = new_time;
     }
 
+    // Destroy renderer
+    delete renderer;
+
+    // Clean-up ECS
+    ecs::Coordinator::terminate();
+
     // Unload assets
-    lighting = nullptr;
-    shader = nullptr;
-    model = nullptr;
     data::Manager::terminate();
 
     glfwTerminate();

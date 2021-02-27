@@ -27,7 +27,7 @@ namespace vpg::gl {
 
         static bool create(Palette& palette, std::initializer_list<Material> mats);
         void update();
-        void bind(unsigned int index);
+        void bind(unsigned int index) const;
 
         Material& operator[](size_t index);
 

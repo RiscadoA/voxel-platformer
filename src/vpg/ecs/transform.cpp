@@ -52,7 +52,7 @@ const glm::mat4& Transform::get_local() {
 
 void Transform::update() {
     this->local = glm::mat4(1.0f);
-    this->local = glm::scale(glm::mat4(1.0f), this->scale);
+    this->local = glm::scale(this->local, this->scale);
     this->local = glm::toMat4(this->get_rotation()) * this->local;
     this->local = glm::translate(this->local, this->position);
     this->dirty = false;

@@ -1,20 +1,20 @@
 #pragma once
 
+#include <vpg/ecs/coordinator.hpp>
+
 #include <glm/glm.hpp>
 
 namespace vpg::gl {
     class Camera {
     public:
-        Camera(float fov, float aspect_ratio, float z_near, float z_far, glm::vec3 position, glm::vec2 rotation);
+        Camera(
+            ecs::Entity entity = ecs::NullEntity,
+            float fov = 70.0f,
+            float aspect_ratio = 1.0f,
+            float z_near = 0.1f,
+            float z_far = 1000.0f
+        );
         ~Camera() = default;
-
-        void move(const glm::vec3& translation);
-        void rotate(const glm::vec2& rotation);
-
-        void set_position(const glm::vec3& position);
-        void set_rotation(const glm::vec2& rotation);
-        void set_direction(const glm::vec3& dir);
-        void look_at(const glm::vec3& point);
 
         void set_fov(float fov);
         void set_aspect_ratio(float aspect_ratio);
@@ -33,27 +33,23 @@ namespace vpg::gl {
         inline float get_z_near() const { return this->z_near; }
         inline float get_z_far() const { return this->z_far; }
 
-        inline const glm::vec3& get_position() const { return this->pos; }
-        inline const glm::vec2& get_rotation() const { return this->rot; }
-        inline const glm::mat4& get_projection() const { return this->proj; }
         inline const glm::mat4& get_view() const { return this->view; }
-
-        inline const glm::vec3& get_forward() const { return this->forward; }
-        inline const glm::vec3& get_right() const { return this->right; }
-        inline const glm::vec3& get_up() const { return this->up; }
-        inline glm::vec3 get_world_up() const { return glm::vec3(0.0f, 1.0f, 0.0f); }
+        inline const glm::mat4& get_proj() const { return this->proj; }
 
     private:
+        ecs::Entity entity;
+
         float aspect_ratio;
         float fov;
         float z_near, z_far;
 
-        glm::mat4 view;
-        glm::mat4 proj;
-
-        glm::vec3 pos, forward, right, up;
-        glm::vec2 rot;
+        glm::mat4 view, proj;
 
         glm::vec4 frustum_planes[6];
+    };
+
+    class CameraSystem : public ecs::System {
+    public:
+        CameraSystem();
     };
 }

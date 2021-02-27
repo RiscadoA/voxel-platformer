@@ -13,7 +13,7 @@ namespace vpg::ecs {
 	public:
 		virtual ~System() = default;
 
-	protected:
+	public:
 		friend SystemManager;
 
 		Signature signature;

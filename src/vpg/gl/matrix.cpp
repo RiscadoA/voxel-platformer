@@ -1,4 +1,4 @@
-#include <vpg/gl/mesh.hpp>
+#include <vpg/gl/matrix.hpp>
 
 #include <iostream>
 #include <stack>
@@ -9,59 +9,18 @@
 using namespace vpg;
 using namespace vpg::gl;
 
-Mesh::Mesh(Mesh&& rhs) {
-    this->va = std::move(rhs.va);
-    this->vb = std::move(rhs.vb);
-    this->ib = std::move(rhs.ib);
-    this->count = rhs.count;
-    rhs.count = 0;
-}
-
-void Mesh::draw() const {
-    if (this->count > 0 && this->va_ready) {
-        this->va.bind();
-        this->ib.bind();
-        glDrawElements(GL_TRIANGLES, this->count, GL_UNSIGNED_INT, nullptr);
-    }
-}
-
-void Mesh::generate_va() {
-    if (!this->va_ready) {
-        if (this->count > 0) {
-            VertexArray::create(this->va, {
-                Attribute(
-                    this->vb,
-                    sizeof(Vertex), offsetof(Vertex, Vertex::pos),
-                    3, Attribute::Type::U8,
-                    0
-                ),
-                Attribute(
-                    this->vb,
-                    sizeof(Vertex), offsetof(Vertex, Vertex::normal),
-                    3, Attribute::Type::I8,
-                    1
-                ),
-                Attribute(
-                    this->vb,
-                    sizeof(Vertex), offsetof(Vertex, Vertex::material),
-                    1, Attribute::Type::U8,
-                    2
-                )
-            });
-        }
-
-        this->va_ready = true;
-    }
-}
-
-bool Mesh::update(const Matrix& matrix, bool generate_borders, bool gen_va) {
+bool vpg::gl::matrix_to_mesh(
+    std::vector<Vertex>& vertices,
+    std::vector<unsigned int>& indices,
+    const Matrix& matrix,
+    bool generate_borders) {
     auto begin = std::chrono::steady_clock::now();
 
-    std::vector<Vertex> verts;
-    std::vector<unsigned int> indices;
     std::vector<unsigned char> mask;
 
     auto& sz = matrix.sz;
+
+    glm::vec3 offset = -glm::vec3(sz) / 2.0f;
 
     // For both back and front faces
     bool back_face = true;
@@ -95,7 +54,7 @@ bool Mesh::update(const Matrix& matrix, bool generate_borders, bool gen_va) {
                                     matrix.voxels[x.x * sz.y * sz.z + x.y * sz.z + x.z];
                             }
                             else if (matrix.voxels[x.x * sz.y * sz.z + x.y * sz.z + x.z] == 0 ||
-                                     matrix.voxels[(x.x + q.x) * sz.y * sz.z + (x.y + q.y) * sz.z + (x.z + q.z)] == 0) {
+                                matrix.voxels[(x.x + q.x) * sz.y * sz.z + (x.y + q.y) * sz.z + (x.z + q.z)] == 0) {
                                 mask[n++] = back_face ?
                                     matrix.voxels[(x.x + q.x) * sz.y * sz.z + (x.y + q.y) * sz.z + (x.z + q.z)] :
                                     matrix.voxels[x.x * sz.y * sz.z + x.y * sz.z + x.z];
@@ -154,12 +113,12 @@ bool Mesh::update(const Matrix& matrix, bool generate_borders, bool gen_va) {
                                 du[u] = w;
                                 dv[v] = h;
 
-                                auto vi = verts.size();
-                                verts.resize(vi + 4, { { 0, 0, 0 }, back_face ? -q : q, mask[n] });
-                                verts[vi + 0].pos = glm::u8vec3(x);
-                                verts[vi + 1].pos = glm::u8vec3(x + du);
-                                verts[vi + 2].pos = glm::u8vec3(x + du + dv);
-                                verts[vi + 3].pos = glm::u8vec3(x + dv);
+                                auto vi = vertices.size();
+                                vertices.resize(vi + 4, { offset, back_face ? -q : q, unsigned char(mask[n] - 1) });
+                                vertices[vi + 0].pos += glm::vec3(x);
+                                vertices[vi + 1].pos += glm::vec3(x + du);
+                                vertices[vi + 2].pos += glm::vec3(x + du + dv);
+                                vertices[vi + 3].pos += glm::vec3(x + dv);
 
                                 auto ii = indices.size();
                                 indices.resize(ii + 6);
@@ -204,26 +163,6 @@ bool Mesh::update(const Matrix& matrix, bool generate_borders, bool gen_va) {
     auto t = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
     //std::cout << "Matrix meshing time: " << t << "us" << std::endl;
     //std::cout << opaque_verts.size() << " vertices, " << (opaque_indices.size() + transparent_indices.size()) << " indices" << std::endl;
-
-    this->count = indices.size();
-    if (this->count > 0) {
-        if (!IndexBuffer::create(this->ib, indices.size() * sizeof(unsigned int), indices.data(), Usage::Static)) {
-            std::cerr << "vpg::gl::Mesh::update() failed:\n"
-                      << "Couldn't create index buffer\n";
-            return false;
-        }
-
-        if (!VertexBuffer::create(this->vb, verts.size() * sizeof(Vertex), verts.data(), Usage::Static)) {
-            std::cerr << "vpg::gl::Mesh::update() failed:\n"
-                      << "Couldn't create vertex buffer\n";
-            return false;
-        }
-
-        this->va_ready = false;
-        if (gen_va) {
-            this->generate_va();
-        }
-    }
 
     return true;
 }
