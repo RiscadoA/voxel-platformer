@@ -52,7 +52,6 @@ void Camera::update() {
     
     this->proj = glm::perspective(glm::radians(this->fov), this->aspect_ratio, this->z_near, this->z_far);
     this->view = glm::inverse(transform->get_global());
-    //this->view = glm::lookAt(glm::vec3(0.0f, 0.0f, -25.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     // Extract frustum planes
     auto m = glm::transpose(this->proj * this->view);

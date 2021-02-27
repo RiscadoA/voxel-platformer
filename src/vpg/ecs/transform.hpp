@@ -10,6 +10,8 @@ namespace vpg::ecs {
     public:
         Transform(Entity parent = NullEntity);
 
+        void translate(const glm::vec3& translation);
+
         void set_position(const glm::vec3& position);
         void set_rotation(const glm::quat& rotation);
         void set_scale(const glm::vec3& scale);
@@ -17,6 +19,10 @@ namespace vpg::ecs {
         inline const glm::vec3& get_position() const { return this->position; }
         inline const glm::quat& get_rotation() const { return this->rotation; }
         inline const glm::vec3& get_scale() const { return this->scale; }
+
+        inline const glm::vec3& get_forward() const { return this->forward; }
+        inline const glm::vec3& get_right() const { return this->right; }
+        inline const glm::vec3& get_up() const { return this->up; }
         
         glm::mat4 get_global();
         const glm::mat4& get_local();
@@ -26,6 +32,7 @@ namespace vpg::ecs {
     private:
         Entity parent;
         glm::vec3 position, scale;
+        glm::vec3 forward, right, up;
         glm::quat rotation;
         glm::mat4 local;
         bool dirty;

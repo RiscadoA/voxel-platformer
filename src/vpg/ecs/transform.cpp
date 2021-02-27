@@ -12,6 +12,11 @@ vpg::ecs::Transform::Transform(Entity parent) {
     this->dirty = true;
 }
 
+void vpg::ecs::Transform::translate(const glm::vec3& translation) {
+    this->position += translation;
+    this->dirty = true;
+}
+
 void Transform::set_position(const glm::vec3& position) {
     this->position = position;
     this->dirty = true;
@@ -55,5 +60,10 @@ void Transform::update() {
     this->local = glm::scale(this->local, this->scale);
     this->local = glm::toMat4(this->get_rotation()) * this->local;
     this->local = glm::translate(this->local, this->position);
+
+    this->forward = this->rotation * glm::vec3(0.0f, 0.0f, -1.0f);
+    this->up = this->rotation * glm::vec3(0.0f, 1.0f, 0.0f);
+    this->right = this->rotation * glm::vec3(1.0f, 0.0f, 0.0f);
+
     this->dirty = false;
 }
