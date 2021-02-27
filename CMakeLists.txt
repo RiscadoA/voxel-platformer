@@ -24,7 +24,7 @@ set (SOURCE_FILES
 	"src/vpg/gl/palette.cpp"
 	"src/vpg/gl/mesh.hpp"
 	"src/vpg/gl/mesh.cpp"
-)
+ "src/vpg/data/qb_parser.hpp" "src/vpg/data/qb_parser.cpp" "src/vpg/endianness.hpp")
 	
 add_executable(vpg ${SOURCE_FILES})
 set_target_properties(vpg PROPERTIES
