@@ -1,7 +1,10 @@
 #include <vpg/config.hpp>
+
 #include <vpg/data/manager.hpp>
 #include <vpg/data/shader.hpp>
 #include <vpg/data/model.hpp>
+
+#include <vpg/ecs/coordinator.hpp>
 
 #include <glm/glm.hpp>
 #include <gl/glew.h>
@@ -10,6 +13,17 @@
 #include <iostream>
 
 using namespace vpg;
+
+struct Transform {
+    glm::vec3 position, rotation, scale;
+};
+
+class PhysicsSystem : public ecs::System {
+public:
+    PhysicsSystem(ecs::Coordinator& coordinator) {
+        this->signature.set(coordinator.get_component_type<Transform>());
+    }
+};
 
 int main(int argc, char** argv) {
     Config::load(argc, argv);

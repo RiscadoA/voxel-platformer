@@ -31,7 +31,7 @@ set (SOURCE_FILES
 
 	"src/vpg/gl/renderer.hpp"
 
-	"src/vpg/data/manager.hpp"
+	"src/vpg/ecs/entity_manager.hpp"
 	"src/vpg/data/manager.cpp"
 	"src/vpg/data/asset.hpp"
 	"src/vpg/data/asset.cpp"
@@ -44,10 +44,15 @@ set (SOURCE_FILES
 	"src/vpg/data/model.hpp"
 	"src/vpg/data/model.cpp"
 
-	"src/vpg/scene/graph.hpp"
-	"src/vpg/scene/graph.cpp"
-	"src/vpg/scene/node.hpp"
-	"src/vpg/scene/node.cpp"
+	"src/vpg/ecs/entity_manager.hpp"
+	"src/vpg/ecs/entity_manager.cpp"
+	"src/vpg/ecs/component_manager.hpp"
+	"src/vpg/ecs/component_manager.cpp"
+	"src/vpg/ecs/component_array.hpp"
+	"src/vpg/ecs/system_manager.hpp"
+	"src/vpg/ecs/system_manager.cpp"
+	"src/vpg/ecs/coordinator.hpp"
+	"src/vpg/ecs/coordinator.cpp"
 )
 	
 add_executable(vpg ${SOURCE_FILES})

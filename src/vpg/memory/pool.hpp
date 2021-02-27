@@ -17,6 +17,8 @@ namespace vpg::memory {
         size_t alloc();
         void free(size_t index);
 
+        bool has_element(size_t index);
+
     protected:
         void* data;
         char* state;
