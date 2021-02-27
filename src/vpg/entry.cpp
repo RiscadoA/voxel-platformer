@@ -54,6 +54,8 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    auto lighting = data::Manager::load<data::Shader>("shader.lighting");
+
     auto shader = data::Manager::load<data::Shader>("shader.mesh");
     auto model = data::Manager::load<data::Model>("model.chr_knight");
 
@@ -61,12 +63,14 @@ int main(int argc, char** argv) {
         glfwPollEvents();
 
         // Render here
-
+        lighting->get_shader().bind();
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glfwSwapBuffers(window);
     }
 
     // Unload assets
+    lighting = nullptr;
     shader = nullptr;
     model = nullptr;
     data::Manager::terminate();

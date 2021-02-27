@@ -7,14 +7,16 @@ using namespace vpg;
 using namespace vpg::data;
 
 void* Shader::load(Asset* asset) {
-    std::string path = Config::get_string("data.folder", "./data/") + asset->get_args();
+    auto args = asset->get_args();
+    std::string vs_path = Config::get_string("data.folder", "./data/") + args.substr(0, args.find(' '));
+    std::string fs_path = Config::get_string("data.folder", "./data/") + args.substr(args.find(' ') + 1);
     
     // Load vertex shader
     std::string vs;
-    std::ifstream vs_ifs(path + ".vert");
+    std::ifstream vs_ifs(vs_path);
     if (!vs_ifs.is_open()) {
         std::cerr << "vpg::data::Shader::load() failed:\n"
-                  << "Couldn't open file '" << path << ".vert'\n";
+                  << "Couldn't open file '" << vs_path << "'\n";
         return nullptr;
     }
     vs_ifs.seekg(0, std::ios::end);
@@ -26,10 +28,10 @@ void* Shader::load(Asset* asset) {
 
     // Load fragment shader
     std::string fs;
-    std::ifstream fs_ifs(path + ".frag");
+    std::ifstream fs_ifs(fs_path);
     if (!fs_ifs.is_open()) {
         std::cerr << "vpg::data::Shader::load() failed:\n"
-                  << "Couldn't open file '" << path << ".frag'\n";
+                  << "Couldn't open file '" << fs_path << "'\n";
         return nullptr;
     }
     fs_ifs.seekg(0, std::ios::end);
