@@ -43,7 +43,8 @@ namespace vpg::ecs {
 			abort();
 		}
 
-		this->components[this->count] = std::move(component);
+		this->components[this->count].~T();
+		new (&this->components[this->count]) T(std::move(component));
 		this->index_to_entity.emplace(this->count, entity);
 		this->entity_to_index.emplace(entity, this->count);
 		this->count += 1;
@@ -62,7 +63,8 @@ namespace vpg::ecs {
 		this->entity_to_index.erase(it);
 
 		this->count -= 1;
-		this->components[index] = std::move(this->components[this->count]);
+		this->components[index].~T();
+		new (&this->components[this->count]) T(std::move(this->components[this->count]));
 		auto last_entity = this->index_to_entity[this->count];
 		this->index_to_entity.erase(this->count);
 		this->entity_to_index[last_entity] = index;

@@ -56,6 +56,8 @@ set (SOURCE_FILES
 
 	"src/vpg/ecs/transform.hpp"
 	"src/vpg/ecs/transform.cpp"
+	"src/vpg/ecs/behaviour.hpp"
+	"src/vpg/ecs/behaviour.cpp"
 )
 	
 add_executable(vpg ${SOURCE_FILES})
