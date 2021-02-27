@@ -23,6 +23,10 @@ namespace vpg::data {
             std::function<void* (Asset*)> load_fn,
             std::function<void(Asset*)> unload_fn
         );
+        
+        // Must be called before Manager::init()
+        template <typename T>
+        static void register_type();
 
         template <typename T>
         static Handle<T> load(const std::string& id);
@@ -39,6 +43,11 @@ namespace vpg::data {
 
     template<>
     Handle<void> Manager::load<void>(const std::string& id);
+
+    template<typename T>
+    inline void Manager::register_type() {
+        Manager::register_loader(T::Type, &T::load, &T::unload);
+    }
 
     template<typename T>
     inline Handle<T> Manager::load(const std::string& id) {

@@ -46,14 +46,16 @@ Palette::~Palette() {
 
 bool Palette::create(Palette& palette, std::initializer_list<Material> mats) {
     palette.mats = new Material[255];
-    memcpy(palette.mats, mats.begin(), mats.size() * sizeof(Material));
-    
+    if (mats.size() > 0) {
+        memcpy(palette.mats, mats.begin(), mats.size() * sizeof(Material));
+    }
+
     glGenBuffers(1, &palette.ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, palette.ubo);
     glBufferData(GL_UNIFORM_BUFFER, sizeof(Material) * 255, palette.mats, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-    return false;
+    return true;
 }
 
 void Palette::update() {

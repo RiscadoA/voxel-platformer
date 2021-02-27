@@ -14,6 +14,11 @@ namespace vpg::data {
         static void unload(Asset* asset);
 
     private:
+        Model() = default;
+        ~Model() = default;
 
+        gl::Matrix matrix;
+        gl::Mesh mesh;
+        gl::Palette palette;
     };
 }

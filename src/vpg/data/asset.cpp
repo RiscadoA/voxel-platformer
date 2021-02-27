@@ -44,5 +44,6 @@ void Asset::inc_ref() {
 void Asset::dec_ref() {
     if (--this->ref_count == 0 && this->is_dynamic) {
         this->unload_fn(this);
+        this->data = nullptr;
     }
 }

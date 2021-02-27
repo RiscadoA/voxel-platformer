@@ -35,8 +35,18 @@ int main(int argc, char** argv) {
         nullptr
     );
 
+    glfwMakeContextCurrent(window);
+
+    // Initialize GLEW
+    GLenum glew_status = glewInit();
+    if (glew_status != GLEW_OK) {
+        std::cerr << "glewInit() failed:\n"
+                  << glewGetErrorString(glew_status) << '\n';
+        return 1;
+    }
+
     // Load assets
-    data::Manager::register_loader(data::Model::Type, data::Model::load, data::Model::unload);
+    data::Manager::register_type<data::Model>();
     if (!data::Manager::init()) {
         std::cerr << "Couldn't initialize data manager\n";
         return 1;
@@ -49,10 +59,12 @@ int main(int argc, char** argv) {
 
         // Render here
 
+
         glfwSwapBuffers(window);
     }
 
     // Unload assets
+    model = nullptr;
     data::Manager::terminate();
 
     glfwTerminate();
