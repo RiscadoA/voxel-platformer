@@ -63,6 +63,14 @@ void Camera::update() {
     this->frustum_planes[5] = m[3] - m[2]; // Far
 }
 
+void vpg::gl::Camera::serialize(std::ostream& os) {
+    os << this->fov << this->aspect_ratio << this->z_near << this->z_far;
+}
+
+void vpg::gl::Camera::deserialize(std::istream& is) {
+    is >> this->fov >> this->aspect_ratio >> this->z_near >> this->z_far;
+}
+
 CameraSystem::CameraSystem() {
     this->signature.set(ecs::Coordinator::get_component_type<Camera>());
 }

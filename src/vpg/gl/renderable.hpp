@@ -4,7 +4,9 @@
 #include <vpg/data/model.hpp>
 
 namespace vpg::gl {
-    struct Renderable {
+    struct Renderable : public ecs::Component {
+        static constexpr char TypeName[] = "Renderable";
+
         enum class Type {
             None,
             Model,
@@ -18,6 +20,9 @@ namespace vpg::gl {
         Renderable(data::Handle<data::Model> model);
         Renderable(Renderable&& rhs) noexcept;
         ~Renderable();
+
+        virtual void serialize(std::ostream& os) override;
+        virtual void deserialize(std::istream& is) override;
     };
 
     class RenderableSystem : public ecs::System {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vpg/ecs/component.hpp>
 #include <vpg/ecs/entity_manager.hpp>
 
 #include <unordered_map>
@@ -15,6 +16,8 @@ namespace vpg::ecs {
 	template <typename T>
 	class ComponentArray : public IComponentArray {
 	public:
+		static_assert(std::is_base_of<Component, T>::value);
+
 		ComponentArray();
 
 		T& insert(Entity entity, T&& component);

@@ -18,6 +18,7 @@ namespace vpg::data {
 
         ~Asset();
 
+        inline const std::string& get_id() const { return this->id; }
         inline const std::string& get_type() const { return this->type; }
         inline const std::string& get_args() const { return this->args; }
         inline void* get_data() const { return this->data; }

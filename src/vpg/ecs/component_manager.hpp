@@ -38,7 +38,7 @@ namespace vpg::ecs {
 
 	template<typename T>
 	inline void ComponentManager::register_component() {
-		const char* type_name = typeid(T).name();
+		const char* type_name = T::TypeName;
 
 		if (this->types.find(type_name) != this->types.end()) {
 			std::cerr << "vpg::ecs::ComponentManager::register_component() failed:\n"
@@ -54,7 +54,7 @@ namespace vpg::ecs {
 
 	template<typename T>
 	inline ComponentType ComponentManager::get_component_type() {
-		const char* type_name = typeid(T).name();
+		const char* type_name = T::TypeName;
 		
 		auto it = this->types.find(type_name);
 		if (it == this->types.end()) {
@@ -68,7 +68,7 @@ namespace vpg::ecs {
 
 	template<typename T>
 	inline T& ComponentManager::add_component(Entity entity, T&& component) {
-		const char* type_name = typeid(T).name();
+		const char* type_name = T::TypeName;
 
 		auto it = this->arrays.find(type_name);
 		if (it == this->arrays.end()) {
@@ -82,7 +82,7 @@ namespace vpg::ecs {
 
 	template<typename T>
 	inline void ComponentManager::remove_component(Entity entity) {
-		const char* type_name = typeid(T).name();
+		const char* type_name = T::TypeName;
 
 		auto it = this->arrays.find(type_name);
 		if (it == this->arrays.end()) {
@@ -96,7 +96,7 @@ namespace vpg::ecs {
 
 	template<typename T>
 	inline T* ComponentManager::get_component(Entity entity) {
-		const char* type_name = typeid(T).name();
+		const char* type_name = T::TypeName;
 
 		auto it = this->arrays.find(type_name);
 		if (it == this->arrays.end()) {

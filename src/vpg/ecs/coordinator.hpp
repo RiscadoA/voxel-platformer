@@ -4,6 +4,8 @@
 #include <vpg/ecs/component_manager.hpp>
 #include <vpg/ecs/system_manager.hpp>
 
+#include <iostream>
+
 namespace vpg::ecs {
     class Coordinator {
     public:

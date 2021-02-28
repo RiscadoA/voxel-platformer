@@ -5,8 +5,10 @@
 #include <glm/glm.hpp>
 
 namespace vpg::gl {
-    class Camera {
+    class Camera : public ecs::Component {
     public:
+        static constexpr char TypeName[] = "Camera";
+
         Camera(
             ecs::Entity entity = ecs::NullEntity,
             float fov = 70.0f,
@@ -14,6 +16,7 @@ namespace vpg::gl {
             float z_near = 0.1f,
             float z_far = 1000.0f
         );
+        Camera(Camera&&) = default;
         ~Camera() = default;
 
         void set_fov(float fov);
@@ -35,6 +38,9 @@ namespace vpg::gl {
 
         inline const glm::mat4& get_view() const { return this->view; }
         inline const glm::mat4& get_proj() const { return this->proj; }
+
+        virtual void serialize(std::ostream& os) override;
+        virtual void deserialize(std::istream& is) override;
 
     private:
         ecs::Entity entity;

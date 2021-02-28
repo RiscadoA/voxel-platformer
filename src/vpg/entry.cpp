@@ -15,11 +15,16 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <sstream>
 
 using namespace vpg;
 
+GLFWwindow* window;
+
 class CameraBehaviour : public ecs::IBehaviour {
 public:
+    static constexpr char TypeName[] = "CameraBehaviour";
+
     static void glfw_cursor_pos_callback(GLFWwindow* win, double x, double y) {
         auto behaviour = CameraBehaviour::current_camera;
         auto transform = ecs::Coordinator::get_component<ecs::Transform>(behaviour->entity);
@@ -35,57 +40,58 @@ public:
         py = y;
     }
 
-    CameraBehaviour(ecs::Entity entity, GLFWwindow* window) {
+    CameraBehaviour(ecs::Entity entity) {
         this->entity = entity;
-        this->window = window;
         this->sensitivity = 0.001f;
         this->speed = 50.0f;
 
-        this->old_callback = glfwSetCursorPosCallback(this->window, glfw_cursor_pos_callback);
-        glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        this->old_callback = glfwSetCursorPosCallback(window, glfw_cursor_pos_callback);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         CameraBehaviour::current_camera = this;
     }
     
     ~CameraBehaviour() {
-        glfwSetCursorPosCallback(this->window, this->old_callback);
-        glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetCursorPosCallback(window, this->old_callback);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         CameraBehaviour::current_camera = nullptr;
     }
 
     virtual void update(float dt) override {
         auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
   
-        if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
             transform->translate(transform->get_forward() * dt * this->speed);
         }
-        else if (glfwGetKey(this->window, GLFW_KEY_S) == GLFW_PRESS) {
+        else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
             transform->translate(-transform->get_forward() * dt * this->speed);
         }
 
-        if (glfwGetKey(this->window, GLFW_KEY_D) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
             transform->translate(transform->get_right() * dt * this->speed);
         }
-        else if (glfwGetKey(this->window, GLFW_KEY_A) == GLFW_PRESS) {
+        else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
             transform->translate(-transform->get_right() * dt * this->speed);
         }
 
-        if (glfwGetKey(this->window, GLFW_KEY_E) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
             transform->translate(transform->get_up() * dt * this->speed);
         }
-        else if (glfwGetKey(this->window, GLFW_KEY_Q) == GLFW_PRESS) {
+        else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
             transform->translate(-transform->get_up() * dt * this->speed);
         }
 
-        if (glfwGetKey(this->window, GLFW_KEY_L) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
             transform->look_at(glm::vec3(0.0f, 0.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         }
     }
+
+    virtual void serialize(std::ostream& os) override { os << this->sensitivity << this->speed; };
+    virtual void deserialize(std::istream& is) override { is >> this->sensitivity >> this->sensitivity; };
 
 private:
     static CameraBehaviour* current_camera;
 
     ecs::Entity entity;
-    GLFWwindow* window;
     GLFWcursorposfun old_callback;
 
     float sensitivity, speed;
@@ -93,7 +99,13 @@ private:
 
 CameraBehaviour* CameraBehaviour::current_camera = nullptr;
 
-static void load_test_scene(GLFWwindow* window, glm::vec2 window_sz) {
+static void load_test_scene(glm::ivec2 window_sz) {
+    ecs::Behaviour::register_type<CameraBehaviour>();
+
+    std::stringstream ss(R"(
+
+    )");
+
     auto entity = ecs::Coordinator::create_entity();
     auto transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
     ecs::Coordinator::add_component<gl::Camera>(entity, gl::Camera(
@@ -103,7 +115,7 @@ static void load_test_scene(GLFWwindow* window, glm::vec2 window_sz) {
         (float)Config::get_float("camera.near", 0.1),
         (float)Config::get_float("camera.far", 1000.0)
     ));
-    ecs::Coordinator::add_component<ecs::Behaviour>(entity, ecs::Behaviour::create<CameraBehaviour>(entity, window));
+    ecs::Coordinator::add_component<ecs::Behaviour>(entity, ecs::Behaviour::create<CameraBehaviour>(entity));
 
     entity = ecs::Coordinator::create_entity();
     transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
@@ -180,7 +192,7 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
-    GLFWwindow* window = glfwCreateWindow(
+    window = glfwCreateWindow(
         window_sz.x,
         window_sz.y,
         "Voxel Platformer Game",
@@ -230,7 +242,7 @@ int main(int argc, char** argv) {
     auto renderable_sys = ecs::Coordinator::register_system<gl::RenderableSystem>();
     auto renderer = new gl::Renderer(window_sz, camera_sys, renderable_sys);
 
-    load_test_scene(window, window_sz);
+    load_test_scene(window_sz);
 
     // TODO: Fix delta time
     

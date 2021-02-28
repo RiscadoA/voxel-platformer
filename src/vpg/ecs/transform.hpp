@@ -6,8 +6,10 @@
 #include <glm/gtx/quaternion.hpp>
 
 namespace vpg::ecs {
-    class Transform {
+    class Transform : public Component {
     public:
+        static constexpr char TypeName[] = "Transform";
+
         Transform(Entity parent = NullEntity);
 
         void translate(const glm::vec3& translation);
@@ -31,6 +33,9 @@ namespace vpg::ecs {
         const glm::mat4& get_local();
 
         void update();
+
+        virtual void serialize(std::ostream& os) override;
+        virtual void deserialize(std::istream& is) override;
 
     private:
         Entity parent;

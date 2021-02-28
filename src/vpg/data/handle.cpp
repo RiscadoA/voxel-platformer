@@ -50,7 +50,7 @@ Handle<void>& Handle<void>::operator=(const Handle& rhs) {
     return *this;
 }
 
-Handle<void>& Handle<void>::operator=(Handle&& rhs) {
+Handle<void>& Handle<void>::operator=(Handle&& rhs) noexcept {
     if (this->asset != nullptr) {
         this->asset->dec_ref();
         this->asset = nullptr;

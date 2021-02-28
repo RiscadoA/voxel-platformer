@@ -14,7 +14,7 @@ namespace vpg::data {
         Handle(Handle&& rhs) noexcept;
         Handle& operator=(Asset* asset);
         Handle& operator=(const Handle& rhs);
-        Handle& operator=(Handle&& rhs);
+        Handle& operator=(Handle&& rhs) noexcept;
         ~Handle();
 
         Asset* get_asset();

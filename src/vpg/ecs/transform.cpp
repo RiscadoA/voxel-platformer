@@ -86,3 +86,24 @@ void Transform::update() {
 
     this->dirty = false;
 }
+
+void Transform::serialize(std::ostream& os) {
+    os << this->parent << '\n';
+    os << this->position.x << ' ' << this->position.y << ' ' << this->position.z << '\n';
+    os << this->scale.x << ' ' << this->scale.y << ' ' << this->scale.z << '\n';
+    os << this->rotation.x << ' ' << this->rotation.y << ' ' << this->rotation.z << ' ' << this->rotation.w;
+}
+
+void Transform::deserialize(std::istream& is) {
+    glm::vec3 position, scale;
+    glm::quat rotation;
+
+    is >> this->parent;
+    is >> position.x >> position.y >> position.z;
+    is >> scale.x >> scale.y >> scale.z;
+    is >> rotation.x >> rotation.y >> rotation.z >> rotation.w;
+
+    this->set_position(position);
+    this->set_scale(scale);
+    this->set_rotation(rotation);
+}
