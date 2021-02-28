@@ -13,7 +13,7 @@ Camera::Camera(ecs::Entity entity, float fov, float aspect_ratio, float z_near, 
     for (int i = 0; i < 6; ++i) {
         this->frustum_planes[i] = glm::vec4(0.0f);
     }
-    this->proj = glm::mat4(1.0f);
+     this->proj = glm::mat4(1.0f);
 }
 
 void Camera::set_fov(float fov) {

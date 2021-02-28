@@ -31,6 +31,9 @@ namespace vpg::ecs {
         static T* get_component(Entity entity);
 
         template<typename T>
+        static Entity get_component_entity(T& component);
+
+        template<typename T>
         static ComponentType get_component_type();
 
         template<typename T, typename ... TArgs>
@@ -55,6 +58,11 @@ namespace vpg::ecs {
         Coordinator::entity_manager->set_signature(entity, signature);
         Coordinator::system_manager->entity_signature_changed(entity, signature);
         return ret;
+    }
+
+    template<typename T>
+    inline Entity Coordinator::get_component_entity(T& component) {
+        return Coordinator::component_manager->get_component_entity<T>(component);
     }
     
     template<typename T>

@@ -9,6 +9,7 @@
 #include <vpg/ecs/behaviour.hpp>
 
 #include <vpg/gl/renderer.hpp>
+#include <vpg/gl/debug.hpp>
 
 #include <glm/glm.hpp>
 #include <gl/glew.h>
@@ -16,6 +17,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <random>
 
 using namespace vpg;
 
@@ -42,8 +44,8 @@ public:
 
     CameraBehaviour(ecs::Entity entity) {
         this->entity = entity;
-        this->sensitivity = 0.001f;
-        this->speed = 50.0f;
+        this->sensitivity = (float)Config::get_float("camera.sensitivity", 10.0);
+        this->speed = (float)Config::get_float("camera.speed", 10.0);
 
         this->old_callback = glfwSetCursorPosCallback(window, glfw_cursor_pos_callback);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -97,21 +99,54 @@ private:
     float sensitivity, speed;
 };
 
+class LightBehaviour : public ecs::IBehaviour {
+public:
+    static constexpr char TypeName[] = "LightBehaviour";
+
+    LightBehaviour(ecs::Entity entity, glm::vec3 center, float distance, float speed) {
+        this->entity = entity;
+        this->distance = distance;
+        this->speed = speed;
+        this->time = 0.0f;
+        this->center = center;
+    }
+
+    virtual void update(float dt) override {
+        auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
+
+        transform->set_position({
+            this->center.x + this->distance * sin(this->time + this->center.x + this->center.z),
+            this->center.y,
+            this->center.z + this->distance * cos(this->time + this->center.x + this->center.z),
+        });
+
+        this->time += dt;
+    }
+
+    virtual void serialize(std::ostream& os) override {};
+    virtual void deserialize(std::istream& is) override {};
+
+private:
+    static CameraBehaviour* current_camera;
+
+    ecs::Entity entity;
+    GLFWcursorposfun old_callback;
+
+    float distance, speed, time;
+    glm::vec3 center;
+};
+
 CameraBehaviour* CameraBehaviour::current_camera = nullptr;
 
 static void load_test_scene(glm::ivec2 window_sz) {
     ecs::Behaviour::register_type<CameraBehaviour>();
-
-    std::stringstream ss(R"(
-
-    )");
 
     auto entity = ecs::Coordinator::create_entity();
     auto transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
     ecs::Coordinator::add_component<gl::Camera>(entity, gl::Camera(
         entity,
         (float)Config::get_float("camera.fov", 70.0),
-        window_sz.x / window_sz.y,
+        (float)window_sz.x / (float)window_sz.y,
         (float)Config::get_float("camera.near", 0.1),
         (float)Config::get_float("camera.far", 1000.0)
     ));
@@ -119,9 +154,44 @@ static void load_test_scene(glm::ivec2 window_sz) {
 
     entity = ecs::Coordinator::create_entity();
     transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
-    transform->set_position(glm::vec3(0.0f, 0.0f, -50.0f));
+    transform->set_position(glm::vec3(0.0f, 9.0f, -16.0f));
     auto model = data::Manager::load<data::Model>("model.chr_knight");
     ecs::Coordinator::add_component<gl::Renderable>(entity, gl::Renderable(model));
+
+    entity = ecs::Coordinator::create_entity();
+    transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
+    transform->set_position(glm::vec3(0.0f, -1.0f, 0.0f));
+    model = data::Manager::load<data::Model>("model.monu10");
+    ecs::Coordinator::add_component<gl::Renderable>(entity, gl::Renderable(model));
+
+    /*entity = ecs::Coordinator::create_entity();
+    transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
+    transform->set_position(glm::vec3(0.0f, 0.0f, 20.0f));*/
+    srand(time(NULL));
+    for (int i = 0; i < 64; ++i) {
+        float x = float((rand() % 160) - 80) / 4.0f;
+        float z = float((rand() % 160) - 80) / 4.0f;
+        
+        entity = ecs::Coordinator::create_entity();
+        transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
+        auto light = &ecs::Coordinator::add_component<gl::Light>(entity, gl::Light());
+        light->type = gl::Light::Type::Point;
+        light->ambient = { 0.0f, 0.0f, 0.0f };
+        light->diffuse = glm::vec3(float(rand() % 10) / 20.0f + 0.3f, float(rand() % 10) / 20.0f + 0.3f, float(rand() % 10) / 20.0f + 0.3f) * 0.5f;
+        ecs::Coordinator::add_component<ecs::Behaviour>(entity, ecs::Behaviour::create<LightBehaviour>(entity,
+            glm::vec3(x, 1.0f, z),
+            float((rand() % 160)) / 16.0f,
+            5.0f
+        ));
+    }
+
+    /*entity = ecs::Coordinator::create_entity();
+    transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
+    transform->look_at(glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    auto light = &ecs::Coordinator::add_component<gl::Light>(entity, gl::Light());
+    light->type = gl::Light::Type::Directional;
+    light->ambient = { 0.2f, 0.2f, 0.2f };
+    light->diffuse = { 1.0f, 1.0f, 1.0f };*/
 }
 
 void APIENTRY gl_debug_output(
@@ -237,10 +307,14 @@ int main(int argc, char** argv) {
 
     // Init renderer
     ecs::Coordinator::register_component<gl::Camera>();
+    ecs::Coordinator::register_component<gl::Light>();
     ecs::Coordinator::register_component<gl::Renderable>();
     auto camera_sys = ecs::Coordinator::register_system<gl::CameraSystem>();
+    auto light_sys = ecs::Coordinator::register_system<gl::LightSystem>();
     auto renderable_sys = ecs::Coordinator::register_system<gl::RenderableSystem>();
-    auto renderer = new gl::Renderer(window_sz, camera_sys, renderable_sys);
+
+    gl::Debug::init();
+    auto renderer = new gl::Renderer(window_sz, camera_sys, light_sys, renderable_sys);
 
     load_test_scene(window_sz);
 
@@ -267,6 +341,7 @@ int main(int argc, char** argv) {
 
     // Destroy renderer
     delete renderer;
+    gl::Debug::terminate();
 
     // Clean-up ECS
     ecs::Coordinator::terminate();

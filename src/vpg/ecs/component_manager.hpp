@@ -27,6 +27,9 @@ namespace vpg::ecs {
 		template <typename T>
 		T* get_component(Entity entity);
 
+		template<typename T>
+		Entity get_component_entity(T& component);
+
 		void entity_destroyed(Entity entity);
 
 	private:
@@ -106,5 +109,19 @@ namespace vpg::ecs {
 		}
 
 		return ((ComponentArray<T>*)it->second)->get(entity);
+	}
+
+	template<typename T>
+	inline Entity ComponentManager::get_component_entity(T& component) {
+		const char* type_name = T::TypeName;
+
+		auto it = this->arrays.find(type_name);
+		if (it == this->arrays.end()) {
+			std::cerr << "vpg::ecs::ComponentManager::get_component_entity() failed:\n"
+					  << "Component type not registered\n";
+			abort();
+		}
+
+		return ((ComponentArray<T>*)it->second)->get_entity(component);
 	}
 }

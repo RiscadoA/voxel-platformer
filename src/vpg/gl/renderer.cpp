@@ -5,25 +5,35 @@
 #include <gl/glew.h>
 #include <random>
 
+#define LIGHT_COUNT 64
+
 using namespace vpg;
 using namespace vpg::gl;
 
-vpg::gl::Renderer::Renderer(glm::ivec2 size, CameraSystem* camera_sys, RenderableSystem* renderable_sys) {
+vpg::gl::Renderer::Renderer(glm::ivec2 size, CameraSystem* camera_sys, LightSystem* light_sys, RenderableSystem* renderable_sys) {
     this->size = size;
     this->camera_sys = camera_sys;
+    this->light_sys = light_sys;
     this->renderable_sys = renderable_sys;
 
     this->gbuffer.shader = data::Manager::load<data::Shader>("shader.gbuffer");
+    this->gbuffer.shader->get_shader().bind_uniform_buffer("Lights", 0);
     this->ssao.shader = data::Manager::load<data::Shader>("shader.ssao");
     this->ssao_blur.shader = data::Manager::load<data::Shader>("shader.ssao_blur");
     this->model_shader = data::Manager::load<data::Shader>("shader.model");
     this->model_shader->get_shader().bind_uniform_buffer("Palette", 0);
 
-    this->sky_color = glm::vec3(0.1f, 0.5f, 0.8f);
+    //this->sky_color = glm::vec3(0.1f, 0.5f, 0.8f);
+    this->sky_color = glm::vec3(0.8f, 0.8f, 0.8f);
     this->wireframe = false;
     this->debug_rendering = false;
 
     glGenVertexArrays(1, &this->screen_va);
+
+    glGenBuffers(1, &this->lights_ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, this->lights_ubo);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(LightData) * LIGHT_COUNT, nullptr, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     this->create_gbuffer();
     this->create_ssao();
@@ -33,6 +43,7 @@ vpg::gl::Renderer::~Renderer() {
     this->destroy_ssao();
     this->destroy_gbuffer();
 
+    glDeleteBuffers(1, &this->lights_ubo);
     glDeleteVertexArrays(1, &this->screen_va);
 }
 
@@ -43,6 +54,41 @@ void vpg::gl::Renderer::render(float dt) {
     }
     auto& camera = *ecs::Coordinator::get_component<Camera>(*this->camera_sys->entities.begin());
     camera.update();
+
+    // Update lights UBO
+    glBindBuffer(GL_UNIFORM_BUFFER, this->lights_ubo);
+    auto lights = (LightData*)glMapBuffer(GL_UNIFORM_BUFFER, GL_WRITE_ONLY);
+    int light_index = 0;
+    for (auto& entity : this->light_sys->entities) {
+        auto& transform = *ecs::Coordinator::get_component<ecs::Transform>(entity);
+        auto& light = *ecs::Coordinator::get_component<Light>(entity);
+
+        switch (light.type) {
+        case Light::Type::Directional:
+            lights[light_index].ambient = glm::vec4(light.ambient, 1.0f);
+            lights[light_index].diffuse = glm::vec4(light.diffuse, 1.0f);
+            lights[light_index].direction = camera.get_view() * glm::vec4(transform.get_global_rotation() * glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
+            break;
+        case Light::Type::Point:
+            gl::Debug::draw_sphere(transform.get_global_position(), 1.0f, lights[light_index].diffuse);
+            lights[light_index].position = camera.get_view() * glm::vec4(transform.get_global_position(), 1.0f);
+            lights[light_index].direction.w = 1.0f;
+            lights[light_index].constant = light.constant;
+            lights[light_index].linear = light.linear;
+            lights[light_index].quadratic = light.quadratic;
+            lights[light_index].ambient = glm::vec4(light.ambient, 1.0f);
+            lights[light_index].diffuse = glm::vec4(light.diffuse, 1.0f);
+            break;
+        }
+
+        light_index += 1;
+    }
+    for (; light_index < LIGHT_COUNT; ++light_index) {
+        lights[light_index].ambient = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        lights[light_index].diffuse = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    }
+    glUnmapBuffer(GL_UNIFORM_BUFFER);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     // Opaque pass
     glBindFramebuffer(GL_FRAMEBUFFER, this->gbuffer.fbo);
@@ -150,7 +196,7 @@ void vpg::gl::Renderer::render(float dt) {
     glUniform1i(lighting_shader.get_uniform_location("ssao_tex"), 3);
     glUniform3f(lighting_shader.get_uniform_location("sky_color"), this->sky_color.r, this->sky_color.g, this->sky_color.b);
     glUniform1f(lighting_shader.get_uniform_location("z_far"), camera.get_z_far());
-    glUniformMatrix4fv(lighting_shader.get_uniform_location("view"), 1, GL_FALSE, &camera.get_view()[0][0]);
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, this->lights_ubo, 0, sizeof(Light) * LIGHT_COUNT);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 
     // Debug draw on top of screen

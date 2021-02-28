@@ -21,6 +21,8 @@ set (SOURCE_FILES
 	"src/vpg/gl/index_buffer.cpp"
 	"src/vpg/gl/vertex_array.hpp"
 	"src/vpg/gl/vertex_array.cpp"
+	"src/vpg/gl/light.hpp"
+	"src/vpg/gl/light.cpp"
 	"src/vpg/gl/debug.hpp"
 	"src/vpg/gl/debug.cpp"
 
@@ -49,6 +51,7 @@ set (SOURCE_FILES
 
 	"src/vpg/ecs/entity_manager.hpp"
 	"src/vpg/ecs/entity_manager.cpp"
+	"src/vpg/ecs/component.hpp"
 	"src/vpg/ecs/component_manager.hpp"
 	"src/vpg/ecs/component_manager.cpp"
 	"src/vpg/ecs/component_array.hpp"
@@ -61,7 +64,7 @@ set (SOURCE_FILES
 	"src/vpg/ecs/transform.cpp"
 	"src/vpg/ecs/behaviour.hpp"
 	"src/vpg/ecs/behaviour.cpp"
- "src/vpg/ecs/component.hpp")
+)
 	
 add_executable(vpg ${SOURCE_FILES})
 set_target_properties(vpg PROPERTIES

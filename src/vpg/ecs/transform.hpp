@@ -15,6 +15,7 @@ namespace vpg::ecs {
         void translate(const glm::vec3& translation);
         void rotate(const glm::quat& rotation);
 
+        void set_parent(Entity parent);
         void set_position(const glm::vec3& position);
         void set_rotation(const glm::quat& rotation);
         void set_scale(const glm::vec3& scale);
@@ -25,6 +26,9 @@ namespace vpg::ecs {
         inline const glm::quat& get_rotation() const { return this->rotation; }
         inline const glm::vec3& get_scale() const { return this->scale; }
 
+        const glm::vec3& get_global_position();
+        const glm::quat& get_global_rotation();
+
         inline const glm::vec3& get_forward() const { return this->forward; }
         inline const glm::vec3& get_right() const { return this->right; }
         inline const glm::vec3& get_up() const { return this->up; }
@@ -33,16 +37,17 @@ namespace vpg::ecs {
         const glm::mat4& get_local();
 
         void update();
+        void set_dirty();
 
         virtual void serialize(std::ostream& os) override;
         virtual void deserialize(std::istream& is) override;
 
     private:
-        Entity parent;
-        glm::vec3 position, scale;
+        Entity parent, child, next;
+        glm::vec3 position, global_position, scale;
         glm::vec3 forward, right, up;
-        glm::quat rotation;
-        glm::mat4 local;
+        glm::quat rotation, global_rotation;
+        glm::mat4 global, local;
         bool dirty;
     };
 }

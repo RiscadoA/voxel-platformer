@@ -23,6 +23,7 @@ namespace vpg::ecs {
 		T& insert(Entity entity, T&& component);
 		void remove(Entity entity);
 		T* get(Entity entity);
+		Entity get_entity(T& component);
 
 		virtual void entity_destroyed(Entity entity) override;
 
@@ -82,6 +83,12 @@ namespace vpg::ecs {
 		}
 
 		return &this->components[it->second];
+	}
+
+	template<typename T>
+	inline Entity ComponentArray<T>::get_entity(T& component) {
+		size_t index = &component - &this->components[0];
+		return this->index_to_entity[index];
 	}
 
 	template<typename T>

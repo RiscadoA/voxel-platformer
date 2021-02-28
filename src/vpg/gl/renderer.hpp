@@ -2,13 +2,14 @@
 
 #include <vpg/gl/camera.hpp>
 #include <vpg/gl/renderable.hpp>
+#include <vpg/gl/light.hpp>
 
 #include <vpg/data/shader.hpp>
 
 namespace vpg::gl {
     class Renderer {
     public:
-        Renderer(glm::ivec2 size, CameraSystem* camera_sys, RenderableSystem* renderable_sys);
+        Renderer(glm::ivec2 size, CameraSystem* camera_sys, LightSystem* light_sys, RenderableSystem* renderable_sys);
         ~Renderer();
 
         void render(float dt);
@@ -21,6 +22,7 @@ namespace vpg::gl {
         void destroy_ssao();
 
         CameraSystem* camera_sys;
+        LightSystem* light_sys;
         RenderableSystem* renderable_sys;
 
         data::Handle<data::Shader> model_shader;
@@ -31,6 +33,18 @@ namespace vpg::gl {
         
         glm::ivec2 size;
         unsigned int screen_va;
+
+        struct LightData {
+            glm::vec4 position = { 0.0f, 0.0f, 0.0f, 1.0f };
+            glm::vec4 direction = { 0.0f, 0.0f, 0.0f, 0.0f };
+            glm::vec4 ambient = { 0.0f, 0.0f, 0.0f, 1.0f };
+            glm::vec4 diffuse = { 0.0f, 0.0f, 0.0f, 1.0f };
+            float constant = 0.0f;
+            float linear = 0.0f;
+            float quadratic = 0.0f;
+            float _padding = 0.0f;
+        };
+        unsigned int lights_ubo;
 
         struct {
             unsigned int fbo;
