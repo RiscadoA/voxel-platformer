@@ -11,10 +11,13 @@ namespace vpg::ecs {
         Transform(Entity parent = NullEntity);
 
         void translate(const glm::vec3& translation);
+        void rotate(const glm::quat& rotation);
 
         void set_position(const glm::vec3& position);
         void set_rotation(const glm::quat& rotation);
         void set_scale(const glm::vec3& scale);
+
+        void look_at(const glm::vec3& point, const glm::vec3& up);
         
         inline const glm::vec3& get_position() const { return this->position; }
         inline const glm::quat& get_rotation() const { return this->rotation; }

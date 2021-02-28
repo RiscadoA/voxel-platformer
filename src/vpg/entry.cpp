@@ -20,10 +20,36 @@ using namespace vpg;
 
 class CameraBehaviour : public ecs::IBehaviour {
 public:
+    static void glfw_cursor_pos_callback(GLFWwindow* win, double x, double y) {
+        auto behaviour = CameraBehaviour::current_camera;
+        auto transform = ecs::Coordinator::get_component<ecs::Transform>(behaviour->entity);
+
+        static double px = INFINITY, py;
+        if (px != INFINITY) {
+            glm::quat rot = glm::angleAxis((float)(py - y) * behaviour->sensitivity, glm::vec3(1.0f, 0.0f, 0.0f)) *
+                            glm::angleAxis((float)(px - x) * behaviour->sensitivity, glm::vec3(0.0f, 1.0f, 0.0f));
+            transform->rotate(rot);
+        }
+
+        px = x;
+        py = y;
+    }
+
     CameraBehaviour(ecs::Entity entity, GLFWwindow* window) {
         this->entity = entity;
         this->window = window;
+        this->sensitivity = 0.001f;
         this->speed = 50.0f;
+
+        this->old_callback = glfwSetCursorPosCallback(this->window, glfw_cursor_pos_callback);
+        glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        CameraBehaviour::current_camera = this;
+    }
+    
+    ~CameraBehaviour() {
+        glfwSetCursorPosCallback(this->window, this->old_callback);
+        glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        CameraBehaviour::current_camera = nullptr;
     }
 
     virtual void update(float dt) override {
@@ -49,14 +75,23 @@ public:
         else if (glfwGetKey(this->window, GLFW_KEY_Q) == GLFW_PRESS) {
             transform->translate(-transform->get_up() * dt * this->speed);
         }
+
+        if (glfwGetKey(this->window, GLFW_KEY_L) == GLFW_PRESS) {
+            transform->look_at(glm::vec3(0.0f, 0.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
     }
 
 private:
+    static CameraBehaviour* current_camera;
+
     ecs::Entity entity;
     GLFWwindow* window;
+    GLFWcursorposfun old_callback;
 
-    float speed;
+    float sensitivity, speed;
 };
+
+CameraBehaviour* CameraBehaviour::current_camera = nullptr;
 
 static void load_test_scene(GLFWwindow* window, glm::vec2 window_sz) {
     auto entity = ecs::Coordinator::create_entity();

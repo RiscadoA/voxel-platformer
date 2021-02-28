@@ -9,12 +9,18 @@ vpg::ecs::Transform::Transform(Entity parent) {
     this->position = { 0.0f, 0.0f, 0.0f };
     this->scale = { 1.0f, 1.0f, 1.0f };
     this->rotation = glm::quat();
+    this->forward = this->rotation * glm::vec3(0.0f, 0.0f, -1.0f);
+    this->up = this->rotation * glm::vec3(0.0f, 1.0f, 0.0f);
+    this->right = this->rotation * glm::vec3(1.0f, 0.0f, 0.0f);
     this->dirty = true;
 }
 
 void vpg::ecs::Transform::translate(const glm::vec3& translation) {
-    this->position += translation;
-    this->dirty = true;
+    this->set_position(this->get_position() + translation);
+}
+
+void vpg::ecs::Transform::rotate(const glm::quat& rotation) {
+    this->set_rotation(this->get_rotation() * rotation);
 }
 
 void Transform::set_position(const glm::vec3& position) {
@@ -23,13 +29,30 @@ void Transform::set_position(const glm::vec3& position) {
 }
 
 void Transform::set_rotation(const glm::quat& rotation) {
-    this->rotation = rotation;
+    this->rotation = glm::normalize(rotation);
+    this->forward = this->rotation * glm::vec3(0.0f, 0.0f, -1.0f);
+    this->up = this->rotation * glm::vec3(0.0f, 1.0f, 0.0f);
+    this->right = this->rotation * glm::vec3(1.0f, 0.0f, 0.0f);
     this->dirty = true;
 }
 
 void Transform::set_scale(const glm::vec3& scale) {
     this->scale = scale;
     this->dirty = true;
+}
+
+void vpg::ecs::Transform::look_at(const glm::vec3& point, const glm::vec3& up) {
+    glm::mat4 parent_global = glm::mat4(1.0f);
+    if (this->parent != NullEntity) {
+        auto parent = Coordinator::get_component<Transform>(this->parent);
+        if (parent == nullptr) {
+            this->parent = NullEntity;
+        }
+        parent_global = parent->get_global();
+    }
+
+    glm::vec3 local_point = glm::inverse(parent_global) * glm::vec4(point, 1.0f);
+    this->set_rotation(glm::quatLookAt(glm::normalize(local_point - this->position), up));
 }
 
 glm::mat4 Transform::get_global() {
@@ -58,12 +81,8 @@ const glm::mat4& Transform::get_local() {
 void Transform::update() {
     this->local = glm::mat4(1.0f);
     this->local = glm::scale(this->local, this->scale);
-    this->local = glm::toMat4(this->get_rotation()) * this->local;
     this->local = glm::translate(this->local, this->position);
-
-    this->forward = this->rotation * glm::vec3(0.0f, 0.0f, -1.0f);
-    this->up = this->rotation * glm::vec3(0.0f, 1.0f, 0.0f);
-    this->right = this->rotation * glm::vec3(1.0f, 0.0f, 0.0f);
+    this->local = this->local * glm::toMat4(this->get_rotation());
 
     this->dirty = false;
 }
