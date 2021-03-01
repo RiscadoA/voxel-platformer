@@ -6,7 +6,6 @@ public:
 
     struct Info : public vpg::ecs::IBehaviour::Info {
         virtual bool serialize(vpg::memory::Stream& stream) const override;
-
         virtual bool deserialize(vpg::memory::Stream& stream) override;
     };
 
