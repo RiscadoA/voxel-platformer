@@ -20,10 +20,11 @@ namespace vpg::ecs {
 
 		template <typename T>
 		ComponentType get_component_type();
+		ComponentType get_component_type(const std::string& name);
 
 		template <typename T>
 		T& add_component(Entity entity, const typename T::Info& create_info);
-		bool add_component(Entity entity, memory::Stream& stream);
+		bool add_component(Entity entity, memory::Stream& stream, std::string& type);
 		
 		template <typename T>
 		void remove_component(Entity entity);

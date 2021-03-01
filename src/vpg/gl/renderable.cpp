@@ -7,13 +7,13 @@ bool Renderable::Info::serialize(memory::Stream& stream) const {
     switch (this->type) {
     case Type::Model:
         stream.write_comment("Model Renderable", 0);
-        stream.write_string("model");
+        stream.write_string("Model");
         stream.write_comment("Asset ID", 1);
         stream.write_string(this->model.get_asset()->get_id());
         break;
     default:
         stream.write_comment("Empty Renderable", 0);
-        stream.write_string("none");
+        stream.write_string("None");
         break;
     }
     return !stream.failed();
@@ -21,7 +21,7 @@ bool Renderable::Info::serialize(memory::Stream& stream) const {
 
 bool Renderable::Info::deserialize(memory::Stream& stream) {
     std::string type_str = stream.read_string();
-    if (type_str == "model") {
+    if (type_str == "Model") {
         this->type = Type::Model;
         std::string asset_id = stream.read_string();
         this->model = data::Manager::load<data::Model>(asset_id);
@@ -31,7 +31,7 @@ bool Renderable::Info::deserialize(memory::Stream& stream) {
             return false;
         }
     }
-    else if (type_str == "none") {
+    else if (type_str == "None") {
         this->type = Type::None;
     }
     else {

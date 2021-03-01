@@ -5,7 +5,7 @@ using namespace vpg::gl;
 bool Light::Info::serialize(memory::Stream& stream) const {
     if (this->type == Type::Point) {
         stream.write_comment("Point light", 0);
-        stream.write_string("point");
+        stream.write_string("Point");
         stream.write_comment("Constant", 1);
         stream.write_f32(this->constant);
         stream.write_comment("Linear", 1);
@@ -15,7 +15,7 @@ bool Light::Info::serialize(memory::Stream& stream) const {
     }
     else if (this->type == Type::Directional) {
         stream.write_comment("Directional light", 0);
-        stream.write_string("directional");
+        stream.write_string("Directional");
     }
     else {
         std::cerr << "vpg::gl::Light::Info::serialize() failed:\n"
@@ -37,13 +37,13 @@ bool Light::Info::serialize(memory::Stream& stream) const {
 
 bool Light::Info::deserialize(memory::Stream& stream) {
     std::string str_type = stream.read_string();
-    if (str_type == "point") {
+    if (str_type == "Point") {
         this->type = Type::Point;
         this->constant = stream.read_f32();
         this->linear = stream.read_f32();
         this->quadratic = stream.read_f32();
     }
-    else if (str_type == "directional") {
+    else if (str_type == "Directional") {
         this->type = Type::Directional;
     }
     else {

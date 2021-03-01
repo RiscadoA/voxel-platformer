@@ -64,7 +64,7 @@ set (SOURCE_FILES
 	"src/vpg/ecs/transform.cpp"
 	"src/vpg/ecs/behaviour.hpp"
 	"src/vpg/ecs/behaviour.cpp"
- "src/vpg/memory/stream.hpp" "src/vpg/memory/stream.cpp")
+ "src/vpg/memory/stream.hpp" "src/vpg/memory/stream.cpp"  "src/vpg/ecs/scene.hpp" "src/vpg/ecs/scene.cpp" "src/vpg/memory/text_stream.hpp" "src/vpg/memory/stream_buffer.hpp" "src/vpg/memory/std_stream_buffer.hpp" "src/vpg/memory/std_stream_buffer.cpp" "src/vpg/memory/text_stream.cpp" "src/vpg/memory/string_stream_buffer.hpp" "src/vpg/memory/string_stream_buffer.cpp" "src/vpg/data/text.hpp" "src/vpg/data/text.cpp")
 	
 add_executable(vpg ${SOURCE_FILES})
 set_target_properties(vpg PROPERTIES

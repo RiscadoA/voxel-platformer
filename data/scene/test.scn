@@ -1,0 +1,53 @@
+# Test scene
+4
+
+# Camera
+3
+Transform
+-1
+0.0 0.0 0.0 # Position
+1.0 1.0 1.0 # Scale
+0.0 0.0 0.0 1.0 # Rotation
+Camera
+70.0 1.0 0.1 1000.0 # FOV AR Near Far
+Behaviour
+CameraBehaviour
+
+# Floor
+2
+Transform
+-1
+0.0 -1.0 0.0 # Position
+1.0 1.0 1.0 # Scale
+0.0 0.0 0.0 1.0 # Rotation
+Renderable
+Model
+model.floor
+
+# Character
+2
+Transform
+-1
+0.0 9.0 11.0 # Position
+1.0 1.0 1.0 # Scale
+0.0 0.0 0.0 1.0 # Rotation
+Renderable
+Model
+model.chr_knight
+
+# Light
+2
+Transform
+-1
+0.0 1.0 0.0 # Position
+1.0 1.0 1.0 # Scale
+0.0 0.0 0.0 1.0 # Rotation
+Light
+Point
+1.0 # Constant
+0.02 # Linear
+0.01 # Quadratic
+0.0 0.0 0.0 # Ambient RGB
+1.0 1.0 1.0 # Diffuse RGB
+
+model.chr_knight

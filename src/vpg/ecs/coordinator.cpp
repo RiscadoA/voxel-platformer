@@ -6,13 +6,13 @@ EntityManager* Coordinator::entity_manager;
 ComponentManager* Coordinator::component_manager;
 SystemManager* Coordinator::system_manager;
 
-void vpg::ecs::Coordinator::init() {
+void Coordinator::init() {
     Coordinator::entity_manager = new EntityManager();
     Coordinator::component_manager = new ComponentManager();
     Coordinator::system_manager = new SystemManager();
 }
 
-void vpg::ecs::Coordinator::terminate() {
+void Coordinator::terminate() {
     delete Coordinator::entity_manager;
     delete Coordinator::component_manager;
     delete Coordinator::system_manager;
@@ -29,5 +29,13 @@ void Coordinator::destroy_entity(Entity entity) {
 }
 
 bool Coordinator::add_component(Entity entity, memory::Stream& stream) {
-    return Coordinator::component_manager->add_component(entity, stream);
+    std::string type;
+    if (!Coordinator::component_manager->add_component(entity, stream, type)) {
+        return false;
+    }
+    auto signature = Coordinator::entity_manager->get_signature(entity);
+    signature.set(Coordinator::component_manager->get_component_type(type), true);
+    Coordinator::entity_manager->set_signature(entity, signature);
+    Coordinator::system_manager->entity_signature_changed(entity, signature);
+    return true;
 }

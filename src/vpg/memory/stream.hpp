@@ -2,6 +2,7 @@
 
 #include <string>
 #include <cstdint>
+#include <unordered_map>
 
 namespace vpg::memory {
     class Stream {
@@ -21,6 +22,7 @@ namespace vpg::memory {
         virtual void write_f64(double val) = 0;
         virtual void write_string(const std::string& str) = 0;
         virtual void write_comment(const std::string& comment, int header) = 0;
+        void write_ref(int64_t ref);
 
         virtual uint8_t read_u8() = 0;
         virtual uint16_t read_u16() = 0;
@@ -33,11 +35,17 @@ namespace vpg::memory {
         virtual float read_f32() = 0;
         virtual double read_f64() = 0;
         virtual std::string read_string() = 0;
+        int64_t read_ref();
 
+        void add_ref_map(int64_t write, int64_t read);
+        int64_t ref_read_to_write(int64_t ref);
+        int64_t ref_write_to_read(int64_t ref);
+        void clear_ref_map();
         void set_failed();
         bool failed() const;
 
     private:
         bool failed_flag;
+        std::unordered_map<int64_t, int64_t> ref_map;
     };
 }

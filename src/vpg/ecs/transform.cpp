@@ -6,6 +6,8 @@ using namespace vpg::ecs;
 
 bool Transform::Info::serialize(memory::Stream& stream) const {
     stream.write_comment("Transform", 0);
+    stream.write_comment("Parent", 1);
+    stream.write_ref((int64_t)this->parent);
     stream.write_comment("Position", 1);
     stream.write_f32(this->position.x);
     stream.write_f32(this->position.y);
@@ -23,6 +25,7 @@ bool Transform::Info::serialize(memory::Stream& stream) const {
 }
 
 bool Transform::Info::deserialize(memory::Stream& stream) {
+    this->parent = (Entity)stream.read_ref();
     this->position.x = stream.read_f32();
     this->position.y = stream.read_f32();
     this->position.z = stream.read_f32();

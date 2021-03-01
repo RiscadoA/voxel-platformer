@@ -32,6 +32,8 @@ namespace vpg::ecs {
 
         void look_at(const glm::vec3& point, const glm::vec3& up);
         
+        inline Entity get_parent() const { return this->parent; }
+
         inline const glm::vec3& get_position() const { return this->position; }
         inline const glm::quat& get_rotation() const { return this->rotation; }
         inline const glm::vec3& get_scale() const { return this->scale; }

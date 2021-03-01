@@ -3,6 +3,7 @@
 #include <vpg/ecs/entity_manager.hpp>
 #include <vpg/ecs/component_manager.hpp>
 #include <vpg/ecs/system_manager.hpp>
+#include <vpg/memory/stream.hpp>
 
 #include <iostream>
 
@@ -23,7 +24,7 @@ namespace vpg::ecs {
         
         template<typename T>
         static T& add_component(Entity entity, const typename T::Info& create_info);
-        bool add_component(Entity entity, memory::Stream& stream);
+        static bool add_component(Entity entity, memory::Stream& stream);
 
         template<typename T>
         static void remove_component(Entity entity);
@@ -52,7 +53,7 @@ namespace vpg::ecs {
     }
 
     template<typename T>
-    inline T& Coordinator::add_component(Entity entity, const typename T::Info& create_info) {
+    inline static T& Coordinator::add_component(Entity entity, const typename T::Info& create_info) {
         auto& ret = Coordinator::component_manager->add_component<T>(entity, create_info);
         auto signature = Coordinator::entity_manager->get_signature(entity);
         signature.set(Coordinator::component_manager->get_component_type<T>(), true);

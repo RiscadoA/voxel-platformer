@@ -1,12 +1,17 @@
 #include <vpg/config.hpp>
 
 #include <vpg/data/manager.hpp>
+#include <vpg/data/text.hpp>
 #include <vpg/data/shader.hpp>
 #include <vpg/data/model.hpp>
 
 #include <vpg/ecs/coordinator.hpp>
+#include <vpg/ecs/scene.hpp>
 #include <vpg/ecs/transform.hpp>
 #include <vpg/ecs/behaviour.hpp>
+
+#include <vpg/memory/string_stream_buffer.hpp>
+#include <vpg/memory/text_stream.hpp>
 
 #include <vpg/gl/renderer.hpp>
 #include <vpg/gl/debug.hpp>
@@ -170,19 +175,23 @@ private:
     glm::vec3 center;
 };
 
-static void load_test_scene(glm::ivec2 window_sz) {
+static void load_test_scene(ecs::Scene* scene, glm::ivec2 window_sz) {
     ecs::Behaviour::register_type<CameraBehaviour>();
     ecs::Behaviour::register_type<LightBehaviour>();
 
+    auto stream_buf = memory::StringStreamBuffer(data::Manager::load<data::Text>("scene.test")->get_content());
+    auto stream = memory::TextStream(&stream_buf);
+    scene->deserialize(stream);
+
     // Initialize camera
-    auto camera_entity = ecs::Coordinator::create_entity();
+    /*auto camera_entity = ecs::Coordinator::create_entity();
     ecs::Coordinator::add_component<ecs::Transform>(camera_entity, ecs::Transform::Info());
     ecs::Coordinator::add_component<gl::Camera>(camera_entity, gl::Camera::Info{
         (float)Config::get_float("camera.fov", 70.0),
         (float)window_sz.x / (float)window_sz.y,
         (float)Config::get_float("camera.near", 0.1),
         (float)Config::get_float("camera.far", 1000.0)
-    });;
+     });
     ecs::Coordinator::add_component<ecs::Behaviour>(camera_entity, ecs::Behaviour::Info::create<CameraBehaviour>(CameraBehaviour::Info {}));
 
     auto model_entity = ecs::Coordinator::create_entity();
@@ -203,9 +212,9 @@ static void load_test_scene(glm::ivec2 window_sz) {
     ecs::Coordinator::add_component<gl::Renderable>(floor_entity, gl::Renderable::Info {
         gl::Renderable::Type::Model,
         data::Manager::load<data::Model>("model.floor")
-    });
+    });*/
 
-    srand(time(NULL));
+    /*srand(time(NULL));
     for (int i = 0; i < 64; ++i) {
         float x = float((rand() % 160) - 80) / 4.0f;
         float z = float((rand() % 160) - 80) / 4.0f;
@@ -222,7 +231,7 @@ static void load_test_scene(glm::ivec2 window_sz) {
         info.distance = float((rand() % 160)) / 16.0f;
         info.speed = 5.0f;
         ecs::Coordinator::add_component<ecs::Behaviour>(light_entity, ecs::Behaviour::Info::create<LightBehaviour>(std::move(info)));
-    }
+    }*/
 
     /*auto entity = ecs::Coordinator::create_entity();
     auto transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
@@ -373,6 +382,7 @@ int main(int argc, char** argv) {
     }
 
     // Load assets
+    data::Manager::register_type<data::Text>();
     data::Manager::register_type<data::Shader>();
     data::Manager::register_type<data::Model>();
     if (!data::Manager::init()) {
@@ -382,6 +392,7 @@ int main(int argc, char** argv) {
 
     // Init ECS
     ecs::Coordinator::init();
+    auto scene = ecs::Coordinator::register_system<ecs::Scene>();
     ecs::Coordinator::register_component<ecs::Transform>();
 
     // Init behaviour system
@@ -399,7 +410,7 @@ int main(int argc, char** argv) {
     gl::Debug::init();
     auto renderer = new gl::Renderer(window_sz, camera_sys, light_sys, renderable_sys);
 
-    load_test_scene(window_sz);
+    load_test_scene(scene, window_sz);
 
     // TODO: Fix delta time
     

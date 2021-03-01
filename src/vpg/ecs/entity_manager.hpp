@@ -8,10 +8,10 @@ namespace vpg::ecs {
     using ComponentType = uint8_t;
     constexpr ComponentType MaxComponents = 32;
 
-    using Entity = uint32_t;
+    using Entity = int32_t;
     using Signature = std::bitset<MaxComponents>;
     constexpr Entity MaxEntities = 8192;
-    constexpr Entity NullEntity = MaxEntities;
+    constexpr Entity NullEntity = -1;
 
     class EntityManager {
     public:

@@ -12,8 +12,20 @@ ComponentManager::~ComponentManager() {
     }
 }
 
-bool ComponentManager::add_component(Entity entity, memory::Stream& stream) {
-    std::string type = stream.read_string();
+ComponentType ComponentManager::get_component_type(const std::string& name) {
+    for (auto& p : this->types) {
+        if (p.first == name) {
+            return p.second;
+        }
+    }
+
+    std::cerr << "vpg::ecs::ComponentManager::get_component_type() failed:\n"
+              << "Component type '" << name << "'not registered\n";
+    abort();
+}
+
+bool ComponentManager::add_component(Entity entity, memory::Stream& stream, std::string& type) {
+    type = stream.read_string();
     auto it = this->constructors.find(type);
     if (it == this->constructors.end()) {
         std::cerr << "vpg::ecs::ComponentManager::add_component() failed:\n"
