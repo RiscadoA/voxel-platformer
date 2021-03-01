@@ -69,6 +69,6 @@ Handle<void>::~Handle() {
     }
 }
 
-Asset* Handle<void>::get_asset() {
+Asset* Handle<void>::get_asset() const {
     return this->asset;
 }

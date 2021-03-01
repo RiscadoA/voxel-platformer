@@ -6,11 +6,21 @@
 #include <glm/gtx/quaternion.hpp>
 
 namespace vpg::ecs {
-    class Transform : public Component {
+    class Transform {
     public:
         static constexpr char TypeName[] = "Transform";
 
-        Transform(Entity parent = NullEntity);
+        struct Info {
+            Entity parent = NullEntity;
+            glm::vec3 position = {};
+            glm::vec3 scale = { 1.0f, 1.0f, 1.0f };
+            glm::quat rotation = {};
+
+            bool serialize(memory::Stream& stream) const;
+            bool deserialize(memory::Stream& stream);
+        };
+
+        Transform(Entity entity, const Info& create_info);
 
         void translate(const glm::vec3& translation);
         void rotate(const glm::quat& rotation);
@@ -38,9 +48,6 @@ namespace vpg::ecs {
 
         void update();
         void set_dirty();
-
-        virtual void serialize(std::ostream& os) override;
-        virtual void deserialize(std::istream& is) override;
 
     private:
         Entity parent, child, next;

@@ -27,6 +27,16 @@ class CameraBehaviour : public ecs::IBehaviour {
 public:
     static constexpr char TypeName[] = "CameraBehaviour";
 
+    struct Info : public ecs::IBehaviour::Info {
+        virtual bool serialize(memory::Stream& stream) const override {
+            return true;
+        }
+
+        virtual bool deserialize(memory::Stream& stream) override {
+            return true;
+        }
+    };
+
     static void glfw_cursor_pos_callback(GLFWwindow* win, double x, double y) {
         auto behaviour = CameraBehaviour::current_camera;
         auto transform = ecs::Coordinator::get_component<ecs::Transform>(behaviour->entity);
@@ -42,7 +52,7 @@ public:
         py = y;
     }
 
-    CameraBehaviour(ecs::Entity entity) {
+    CameraBehaviour(ecs::Entity entity, const Info& info) {
         this->entity = entity;
         this->sensitivity = (float)Config::get_float("camera.sensitivity", 10.0);
         this->speed = (float)Config::get_float("camera.speed", 10.0);
@@ -87,9 +97,6 @@ public:
         }
     }
 
-    virtual void serialize(std::ostream& os) override { os << this->sensitivity << this->speed; };
-    virtual void deserialize(std::istream& is) override { is >> this->sensitivity >> this->sensitivity; };
-
 private:
     static CameraBehaviour* current_camera;
 
@@ -99,16 +106,46 @@ private:
     float sensitivity, speed;
 };
 
+CameraBehaviour* CameraBehaviour::current_camera = nullptr;
+
 class LightBehaviour : public ecs::IBehaviour {
 public:
     static constexpr char TypeName[] = "LightBehaviour";
 
-    LightBehaviour(ecs::Entity entity, glm::vec3 center, float distance, float speed) {
+    struct Info : public ecs::IBehaviour::Info {
+        virtual bool serialize(memory::Stream& stream) const override {
+            stream.write_comment("Light Behaviour", 0);
+            stream.write_comment("Center", 1);
+            stream.write_f32(this->center.x);
+            stream.write_f32(this->center.y);
+            stream.write_f32(this->center.z);
+            stream.write_comment("Distance", 1);
+            stream.write_f32(this->distance);
+            stream.write_comment("Speed", 1);
+            stream.write_f32(this->speed);
+            return !stream.failed();
+        }
+
+        virtual bool deserialize(memory::Stream& stream) override {
+            this->center.x = stream.read_f32();
+            this->center.y = stream.read_f32();
+            this->center.z = stream.read_f32();
+            this->distance = stream.read_f32();
+            this->speed = stream.read_f32();
+            return !stream.failed();
+        }
+
+        glm::vec3 center;
+        float distance;
+        float speed;
+    };
+
+    LightBehaviour(ecs::Entity entity, const Info& info) {
         this->entity = entity;
-        this->distance = distance;
-        this->speed = speed;
+        this->center = info.center;
+        this->distance = info.distance;
+        this->speed = info.speed;
         this->time = 0.0f;
-        this->center = center;
     }
 
     virtual void update(float dt) override {
@@ -120,15 +157,12 @@ public:
             this->center.z + this->distance * cos(this->time + this->center.x + this->center.z),
         });
 
+        transform->rotate(glm::angleAxis(dt * 5.0f * fabs(sin(this->time)), glm::vec3(0.0f, 1.0f, 0.0f)));
+
         this->time += dt;
     }
 
-    virtual void serialize(std::ostream& os) override {};
-    virtual void deserialize(std::istream& is) override {};
-
 private:
-    static CameraBehaviour* current_camera;
-
     ecs::Entity entity;
     GLFWcursorposfun old_callback;
 
@@ -136,12 +170,61 @@ private:
     glm::vec3 center;
 };
 
-CameraBehaviour* CameraBehaviour::current_camera = nullptr;
-
 static void load_test_scene(glm::ivec2 window_sz) {
     ecs::Behaviour::register_type<CameraBehaviour>();
+    ecs::Behaviour::register_type<LightBehaviour>();
 
-    auto entity = ecs::Coordinator::create_entity();
+    // Initialize camera
+    auto camera_entity = ecs::Coordinator::create_entity();
+    ecs::Coordinator::add_component<ecs::Transform>(camera_entity, ecs::Transform::Info());
+    ecs::Coordinator::add_component<gl::Camera>(camera_entity, gl::Camera::Info{
+        (float)Config::get_float("camera.fov", 70.0),
+        (float)window_sz.x / (float)window_sz.y,
+        (float)Config::get_float("camera.near", 0.1),
+        (float)Config::get_float("camera.far", 1000.0)
+    });;
+    ecs::Coordinator::add_component<ecs::Behaviour>(camera_entity, ecs::Behaviour::Info::create<CameraBehaviour>(CameraBehaviour::Info {}));
+
+    auto model_entity = ecs::Coordinator::create_entity();
+    ecs::Coordinator::add_component<ecs::Transform>(model_entity, ecs::Transform::Info {
+        ecs::NullEntity,
+        glm::vec3(0.0f, 9.0f, -16.0f),
+    });
+    ecs::Coordinator::add_component<gl::Renderable>(model_entity, gl::Renderable::Info {
+        gl::Renderable::Type::Model,
+        data::Manager::load<data::Model>("model.dog")
+    });
+
+    auto floor_entity = ecs::Coordinator::create_entity();
+    ecs::Coordinator::add_component<ecs::Transform>(floor_entity, ecs::Transform::Info {
+        ecs::NullEntity,
+        glm::vec3(0.0f, -1.0f, 0.0f),
+    });
+    ecs::Coordinator::add_component<gl::Renderable>(floor_entity, gl::Renderable::Info {
+        gl::Renderable::Type::Model,
+        data::Manager::load<data::Model>("model.floor")
+    });
+
+    srand(time(NULL));
+    for (int i = 0; i < 64; ++i) {
+        float x = float((rand() % 160) - 80) / 4.0f;
+        float z = float((rand() % 160) - 80) / 4.0f;
+
+        auto light_entity = ecs::Coordinator::create_entity();
+        ecs::Coordinator::add_component<ecs::Transform>(light_entity, ecs::Transform::Info());
+        ecs::Coordinator::add_component<gl::Light>(light_entity, gl::Light::Info {
+            gl::Light::Type::Point,
+            { 0.0f, 0.0f, 0.0f },
+            glm::vec3(float(rand() % 10) / 20.0f + 0.3f, float(rand() % 10) / 20.0f + 0.3f, float(rand() % 10) / 20.0f + 0.3f) * 0.5f,
+        });
+        LightBehaviour::Info info;
+        info.center = glm::vec3(x, 1.0f, z);
+        info.distance = float((rand() % 160)) / 16.0f;
+        info.speed = 5.0f;
+        ecs::Coordinator::add_component<ecs::Behaviour>(light_entity, ecs::Behaviour::Info::create<LightBehaviour>(std::move(info)));
+    }
+
+    /*auto entity = ecs::Coordinator::create_entity();
     auto transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
     ecs::Coordinator::add_component<gl::Camera>(entity, gl::Camera(
         entity,
@@ -155,18 +238,15 @@ static void load_test_scene(glm::ivec2 window_sz) {
     entity = ecs::Coordinator::create_entity();
     transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
     transform->set_position(glm::vec3(0.0f, 9.0f, -16.0f));
-    auto model = data::Manager::load<data::Model>("model.chr_knight");
+    auto model = data::Manager::load<data::Model>("model.dog");
     ecs::Coordinator::add_component<gl::Renderable>(entity, gl::Renderable(model));
 
     entity = ecs::Coordinator::create_entity();
     transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
     transform->set_position(glm::vec3(0.0f, -1.0f, 0.0f));
-    model = data::Manager::load<data::Model>("model.monu10");
+    model = data::Manager::load<data::Model>("model.floor");
     ecs::Coordinator::add_component<gl::Renderable>(entity, gl::Renderable(model));
 
-    /*entity = ecs::Coordinator::create_entity();
-    transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
-    transform->set_position(glm::vec3(0.0f, 0.0f, 20.0f));*/
     srand(time(NULL));
     for (int i = 0; i < 64; ++i) {
         float x = float((rand() % 160) - 80) / 4.0f;
@@ -174,6 +254,7 @@ static void load_test_scene(glm::ivec2 window_sz) {
         
         entity = ecs::Coordinator::create_entity();
         transform = &ecs::Coordinator::add_component<ecs::Transform>(entity, ecs::Transform());
+        transform->set_scale(glm::vec3(0.1f));
         auto light = &ecs::Coordinator::add_component<gl::Light>(entity, gl::Light());
         light->type = gl::Light::Type::Point;
         light->ambient = { 0.0f, 0.0f, 0.0f };
@@ -183,6 +264,8 @@ static void load_test_scene(glm::ivec2 window_sz) {
             float((rand() % 160)) / 16.0f,
             5.0f
         ));
+        model = data::Manager::load<data::Model>("model.dog");
+        ecs::Coordinator::add_component<gl::Renderable>(entity, gl::Renderable(model));
     }
 
     /*entity = ecs::Coordinator::create_entity();

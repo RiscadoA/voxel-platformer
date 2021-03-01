@@ -27,3 +27,7 @@ void Coordinator::destroy_entity(Entity entity) {
     Coordinator::component_manager->entity_destroyed(entity);
     Coordinator::system_manager->entity_destroyed(entity);
 }
+
+bool Coordinator::add_component(Entity entity, memory::Stream& stream) {
+    return Coordinator::component_manager->add_component(entity, stream);
+}

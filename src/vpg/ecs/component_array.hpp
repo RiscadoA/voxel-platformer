@@ -1,10 +1,10 @@
 #pragma once
 
-#include <vpg/ecs/component.hpp>
 #include <vpg/ecs/entity_manager.hpp>
 
 #include <unordered_map>
 #include <iostream>
+#include <new>
 
 namespace vpg::ecs {
 	class IComponentArray {
@@ -16,11 +16,10 @@ namespace vpg::ecs {
 	template <typename T>
 	class ComponentArray : public IComponentArray {
 	public:
-		static_assert(std::is_base_of<Component, T>::value);
-
 		ComponentArray();
+		virtual ~ComponentArray() override;
 
-		T& insert(Entity entity, T&& component);
+		T& insert(Entity entity, const typename T::Info& create_info);
 		void remove(Entity entity);
 		T* get(Entity entity);
 		Entity get_entity(T& component);
@@ -28,7 +27,7 @@ namespace vpg::ecs {
 		virtual void entity_destroyed(Entity entity) override;
 
 	private:
-		T components[MaxEntities];
+		T* components;
 		std::unordered_map<size_t, Entity> index_to_entity;
 		std::unordered_map<Entity, size_t> entity_to_index;
 		size_t count;
@@ -37,18 +36,26 @@ namespace vpg::ecs {
 	template<typename T>
 	inline ComponentArray<T>::ComponentArray() {
 		this->count = 0;
+		this->components = (T*)operator new(sizeof(T) * (size_t)MaxEntities, (std::align_val_t)alignof(T));
 	}
 
 	template<typename T>
-	inline T& ComponentArray<T>::insert(Entity entity, T&& component) {
+	inline ComponentArray<T>::~ComponentArray() {
+		for (int i = 0; i < this->count; ++i) {
+			this->components[i].~T();
+		}
+		operator delete((void*)this->components, (std::align_val_t)alignof(T));
+	}
+
+	template<typename T>
+	inline T& ComponentArray<T>::insert(Entity entity, const typename T::Info& create_info) {
 		if (this->entity_to_index.find(entity) != this->entity_to_index.end()) {
 			std::cerr << "vpg::ecs::ComponentArray<T>::insert() failed:\n"
 					  << "Entity " << entity << " already has this component\n";
 			abort();
 		}
 
-		this->components[this->count].~T();
-		new (&this->components[this->count]) T(std::move(component));
+		new (&this->components[this->count]) T(entity, create_info);
 		this->index_to_entity.emplace(this->count, entity);
 		this->entity_to_index.emplace(entity, this->count);
 		return this->components[this->count++];
@@ -69,6 +76,7 @@ namespace vpg::ecs {
 		this->count -= 1;
 		this->components[index].~T();
 		new (&this->components[this->count]) T(std::move(this->components[this->count]));
+		this->components[this->count].~T();
 		auto last_entity = this->index_to_entity[this->count];
 		this->index_to_entity.erase(this->count);
 		this->entity_to_index[last_entity] = index;

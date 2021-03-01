@@ -4,33 +4,57 @@
 
 using namespace vpg::ecs;
 
-vpg::ecs::Transform::Transform(Entity parent) {
-    this->position = { 0.0f, 0.0f, 0.0f };
-    this->scale = { 1.0f, 1.0f, 1.0f };
-    this->rotation = glm::quat();
-    this->forward = this->rotation * glm::vec3(0.0f, 0.0f, -1.0f);
-    this->up = this->rotation * glm::vec3(0.0f, 1.0f, 0.0f);
-    this->right = this->rotation * glm::vec3(1.0f, 0.0f, 0.0f);
-    this->dirty = true;
+bool Transform::Info::serialize(memory::Stream& stream) const {
+    stream.write_comment("Transform", 0);
+    stream.write_comment("Position", 1);
+    stream.write_f32(this->position.x);
+    stream.write_f32(this->position.y);
+    stream.write_f32(this->position.z);
+    stream.write_comment("Scale", 1);
+    stream.write_f32(this->scale.x);
+    stream.write_f32(this->scale.y);
+    stream.write_f32(this->scale.z);
+    stream.write_comment("Rotation", 1);
+    stream.write_f32(this->rotation.x);
+    stream.write_f32(this->rotation.y);
+    stream.write_f32(this->rotation.z);
+    stream.write_f32(this->rotation.w);
+    return !stream.failed();
+}
 
+bool Transform::Info::deserialize(memory::Stream& stream) {
+    this->position.x = stream.read_f32();
+    this->position.y = stream.read_f32();
+    this->position.z = stream.read_f32();
+    this->scale.x = stream.read_f32();
+    this->scale.y = stream.read_f32();
+    this->scale.z = stream.read_f32();
+    this->rotation.x = stream.read_f32();
+    this->rotation.y = stream.read_f32();
+    this->rotation.z = stream.read_f32();
+    this->rotation.w = stream.read_f32();
+    return !stream.failed();
+}
+
+Transform::Transform(Entity entity, const Info& create_info) {
     this->parent = NullEntity;
     this->child = NullEntity;
     this->next = NullEntity;
-
-    if (parent != NullEntity) {
-        this->set_parent(parent);
-    }
+    this->set_parent(create_info.parent);
+    this->set_position(create_info.position);
+    this->set_scale(create_info.scale);
+    this->set_rotation(create_info.rotation);
 }
 
-void vpg::ecs::Transform::translate(const glm::vec3& translation) {
+void Transform::translate(const glm::vec3& translation) {
     this->set_position(this->get_position() + translation);
 }
 
-void vpg::ecs::Transform::rotate(const glm::quat& rotation) {
+void Transform::rotate(const glm::quat& rotation) {
     this->set_rotation(this->get_rotation() * rotation);
 }
 
-void vpg::ecs::Transform::set_parent(Entity parent) {
+void Transform::set_parent(Entity parent) {
     if (this->parent == parent) {
         return;
     }
@@ -83,7 +107,7 @@ void Transform::set_scale(const glm::vec3& scale) {
     this->set_dirty();
 }
 
-void vpg::ecs::Transform::look_at(const glm::vec3& point, const glm::vec3& up) {
+void Transform::look_at(const glm::vec3& point, const glm::vec3& up) {
     glm::mat4 parent_global = glm::mat4(1.0f);
     if (this->parent != NullEntity) {
         auto parent = Coordinator::get_component<Transform>(this->parent);
@@ -97,7 +121,7 @@ void vpg::ecs::Transform::look_at(const glm::vec3& point, const glm::vec3& up) {
     this->set_rotation(glm::quatLookAt(glm::normalize(local_point - this->position), up));
 }
 
-const glm::vec3& vpg::ecs::Transform::get_global_position() {
+const glm::vec3& Transform::get_global_position() {
     if (this->dirty) {
         this->update();
     }
@@ -105,7 +129,7 @@ const glm::vec3& vpg::ecs::Transform::get_global_position() {
     return this->global_position;
 }
 
-const glm::quat& vpg::ecs::Transform::get_global_rotation() {
+const glm::quat& Transform::get_global_rotation() {
     if (this->dirty) {
         this->update();
     }
@@ -131,8 +155,8 @@ const glm::mat4& Transform::get_local() {
 
 void Transform::update() {
     this->local = glm::mat4(1.0f);
-    this->local = glm::scale(this->local, this->scale);
     this->local = glm::translate(this->local, this->position);
+    this->local = glm::scale(this->local, this->scale);
     this->local = this->local * glm::toMat4(this->get_rotation());
 
     if (this->parent == NullEntity) {
@@ -151,7 +175,7 @@ void Transform::update() {
     this->dirty = false;
 }
 
-void vpg::ecs::Transform::set_dirty() {
+void Transform::set_dirty() {
     if (this->dirty) {
         return;
     }
@@ -170,25 +194,4 @@ void vpg::ecs::Transform::set_dirty() {
         }
         c = Coordinator::get_component<Transform>(c->next);
     }
-}
-
-void Transform::serialize(std::ostream& os) {
-    os << this->parent << '\n';
-    os << this->position.x << ' ' << this->position.y << ' ' << this->position.z << '\n';
-    os << this->scale.x << ' ' << this->scale.y << ' ' << this->scale.z << '\n';
-    os << this->rotation.x << ' ' << this->rotation.y << ' ' << this->rotation.z << ' ' << this->rotation.w;
-}
-
-void Transform::deserialize(std::istream& is) {
-    glm::vec3 position, scale;
-    glm::quat rotation;
-
-    is >> this->parent;
-    is >> position.x >> position.y >> position.z;
-    is >> scale.x >> scale.y >> scale.z;
-    is >> rotation.x >> rotation.y >> rotation.z >> rotation.w;
-
-    this->set_position(position);
-    this->set_scale(scale);
-    this->set_rotation(rotation);
 }

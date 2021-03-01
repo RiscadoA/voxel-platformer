@@ -17,7 +17,7 @@ namespace vpg::data {
         Handle& operator=(Handle&& rhs) noexcept;
         ~Handle();
 
-        Asset* get_asset();
+        Asset* get_asset() const;
 
     private:
         Asset* asset;
@@ -28,6 +28,6 @@ namespace vpg::data {
     public:
         using Handle<void>::Handle;
 
-        inline T* operator->() { return (T*)this->get_asset()->get_data(); }
+        inline T* operator->() const { return (T*)this->get_asset()->get_data(); }
     };
 }

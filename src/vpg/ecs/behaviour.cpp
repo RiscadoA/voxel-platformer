@@ -2,19 +2,88 @@
 
 using namespace vpg::ecs;
 
-std::map<std::string, std::function<IBehaviour*(Entity, std::istream& is)>> Behaviour::registry;
+std::map<std::string, std::function<IBehaviour::Info*()>> Behaviour::info_constructors;
+std::map<std::string, std::function<IBehaviour*(Entity, const IBehaviour::Info*)>> Behaviour::constructors;
 
-vpg::ecs::Behaviour::Behaviour() {
-    this->behaviour = nullptr;
-    this->type_name = "null";
-    this->entity = NullEntity;
+Behaviour::Info::Info() {
+    this->info = nullptr;
+    this->name = "null";
+}
+
+Behaviour::Info::Info(Info&& rhs) noexcept {
+    this->info = rhs.info;
+    this->name = rhs.name;
+    rhs.info = nullptr;
+    rhs.name = "null";
+}
+
+Behaviour::Info::~Info() {
+    if (this->info != nullptr) {
+        delete this->info;
+    }
+}
+
+bool Behaviour::Info::serialize(memory::Stream& stream) const {
+    stream.write_comment("Behaviour", 0);
+    stream.write_string(this->name);
+    if (this->info != nullptr) {
+        if (!this->info->serialize(stream)) {
+            return false;
+        }
+    }
+    return !stream.failed();
+}
+
+bool Behaviour::Info::deserialize(memory::Stream& stream) {
+    if (this->info != nullptr) {
+        delete this->info;
+    }
+
+    this->name = stream.read_string();
+    if (this->name == "null") {
+        this->info = nullptr;
+        return true;
+    }
+   
+    auto it = Behaviour::info_constructors.find(this->name);
+    if (it == Behaviour::info_constructors.end()) {
+        std::cerr << "vpg::ecs::Behaviour::Info::deserialize() failed:\n"
+                  << "No behaviour '" << this->name << "' registered\n";
+        this->info = nullptr;
+        this->name = "null";
+        return false;
+    }
+
+    this->info = it->second();
+    if (!this->info->deserialize(stream) || stream.failed()) {
+        delete this->info;
+        this->info = nullptr;
+        this->name = "null";
+        return false;
+    }
+
+    return true;
+}
+
+Behaviour::Behaviour(Entity entity, const Info& info) {
+    this->name = info.name;
+    auto it = Behaviour::constructors.find(this->name);
+    if (it == Behaviour::constructors.end()) {
+        std::cerr << "vpg::ecs::Behaviour::Behaviour() failed:\n"
+                  << "No behaviour '" << this->name << "' registered\n";
+        this->name = "null";
+        this->behaviour = nullptr;
+    }
+    else {
+        this->behaviour = it->second(entity, info.info);
+    }
 }
 
 Behaviour::Behaviour(Behaviour&& rhs) noexcept {
+    this->name = rhs.name;
     this->behaviour = rhs.behaviour;
-    this->type_name = rhs.type_name;
+    rhs.name = "null";
     rhs.behaviour = nullptr;
-    rhs.type_name = "null";
 }
 
 Behaviour::~Behaviour() {
@@ -27,29 +96,6 @@ void Behaviour::update(float dt) {
     if (this->behaviour != nullptr) {
         this->behaviour->update(dt);
     }
-}
-
-void Behaviour::serialize(std::ostream& os) {
-    os << this->type_name;
-    if (this->behaviour != nullptr) {
-        os << ' ';
-        this->behaviour->serialize(os);
-    }
-}
-
-void Behaviour::deserialize(std::istream& is) {
-    is >> this->type_name;
-    auto it = this->registry.find(this->type_name);
-    if (it == this->registry.end()) {
-        std::cerr << "vpg::ecs::Behaviour::deserialize() failed:\n"
-                  << "No behaviour type '" << this->type_name << "' registered\n";
-        abort();
-    }
-
-    if (this->behaviour != nullptr) {
-        delete this->behaviour;
-    }
-    this->behaviour = it->second(this->entity, is);
 }
 
 BehaviourSystem::BehaviourSystem() {

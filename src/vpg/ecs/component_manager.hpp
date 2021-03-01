@@ -2,9 +2,12 @@
 
 #include <vpg/ecs/entity_manager.hpp>
 #include <vpg/ecs/component_array.hpp>
+#include <vpg/memory/stream.hpp>
 
+#include <string>
 #include <iostream>
 #include <unordered_map>
+#include <functional>
 
 namespace vpg::ecs {
 	class ComponentManager {
@@ -19,7 +22,8 @@ namespace vpg::ecs {
 		ComponentType get_component_type();
 
 		template <typename T>
-		T& add_component(Entity entity, T&& component);
+		T& add_component(Entity entity, const typename T::Info& create_info);
+		bool add_component(Entity entity, memory::Stream& stream);
 		
 		template <typename T>
 		void remove_component(Entity entity);
@@ -35,6 +39,7 @@ namespace vpg::ecs {
 	private:
 		std::unordered_map<const char*, ComponentType> types;
 		std::unordered_map<const char*, IComponentArray*> arrays;
+		std::unordered_map<std::string, std::function<bool(Entity, memory::Stream&)>> constructors;
 
 		ComponentType next_type;
 	};
@@ -49,8 +54,18 @@ namespace vpg::ecs {
 			abort();
 		}
 
+		auto array = new ComponentArray<T>();
 		this->types.emplace(type_name, this->next_type);
-		this->arrays.emplace(type_name, new ComponentArray<T>());
+		this->arrays.emplace(type_name, array);
+		this->constructors.emplace(type_name, [array](Entity entity, memory::Stream& stream) -> bool {
+			typename T::Info create_info;
+			if (!create_info.deserialize(stream) || stream.failed()) {
+				return false;
+			}
+
+			array->insert(entity, create_info);
+			return true;
+		});
 
 		this->next_type += 1;
 	}
@@ -70,7 +85,7 @@ namespace vpg::ecs {
 	}
 
 	template<typename T>
-	inline T& ComponentManager::add_component(Entity entity, T&& component) {
+	inline T& ComponentManager::add_component(Entity entity, const typename T::Info& create_info) {
 		const char* type_name = T::TypeName;
 
 		auto it = this->arrays.find(type_name);
@@ -80,7 +95,7 @@ namespace vpg::ecs {
 			abort();
 		}
 
-		return ((ComponentArray<T>*)it->second)->insert(entity, std::move(component));
+		return ((ComponentArray<T>*)it->second)->insert(entity, create_info);
 	}
 
 	template<typename T>

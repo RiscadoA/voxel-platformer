@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <cstdint>
 
 namespace vpg::memory {
@@ -18,6 +19,8 @@ namespace vpg::memory {
         virtual void write_i64(int64_t val) = 0;
         virtual void write_f32(float val) = 0;
         virtual void write_f64(double val) = 0;
+        virtual void write_string(const std::string& str) = 0;
+        virtual void write_comment(const std::string& comment, int header) = 0;
 
         virtual uint8_t read_u8() = 0;
         virtual uint16_t read_u16() = 0;
@@ -29,6 +32,7 @@ namespace vpg::memory {
         virtual int64_t read_i64() = 0;
         virtual float read_f32() = 0;
         virtual double read_f64() = 0;
+        virtual std::string read_string() = 0;
 
         void set_failed();
         bool failed() const;

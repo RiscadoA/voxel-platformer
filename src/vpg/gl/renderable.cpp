@@ -3,13 +3,53 @@
 using namespace vpg;
 using namespace vpg::gl;
 
-Renderable::Renderable() {
-    this->type = Renderable::Type::None;
+bool Renderable::Info::serialize(memory::Stream& stream) const {
+    switch (this->type) {
+    case Type::Model:
+        stream.write_comment("Model Renderable", 0);
+        stream.write_string("model");
+        stream.write_comment("Asset ID", 1);
+        stream.write_string(this->model.get_asset()->get_id());
+        break;
+    default:
+        stream.write_comment("Empty Renderable", 0);
+        stream.write_string("none");
+        break;
+    }
+    return !stream.failed();
 }
 
-Renderable::Renderable(data::Handle<data::Model> model) {
-    this->type = Renderable::Type::Model;
-    new (&this->model) data::Handle<data::Model>(model);
+bool Renderable::Info::deserialize(memory::Stream& stream) {
+    std::string type_str = stream.read_string();
+    if (type_str == "model") {
+        this->type = Type::Model;
+        std::string asset_id = stream.read_string();
+        this->model = data::Manager::load<data::Model>(asset_id);
+        if (this->model.get_asset() == nullptr) {
+            std::cerr << "vpg::gl::Renderable::Info::deserialize() failed:\n"
+                         "No model asset '" << asset_id << "' found\n";
+            return false;
+        }
+    }
+    else if (type_str == "none") {
+        this->type = Type::None;
+    }
+    else {
+        std::cerr << "vpg::gl::Renderable::Info::deserialize() failed:\n"
+                  << "Unknown renderable type " << type_str << '\n';
+        return false;
+    }
+
+    return true;
+}
+
+Renderable::Renderable(ecs::Entity entity, const Info& create_info) {
+    this->type = create_info.type;
+    switch (this->type) {
+    case Renderable::Type::Model:
+        new (&this->model) data::Handle<data::Model>(create_info.model);
+        break;
+    }
 }
 
 Renderable::Renderable(Renderable&& rhs) noexcept {
@@ -27,32 +67,6 @@ Renderable::~Renderable() {
     switch (this->type) {
     case Renderable::Type::Model:
         this->model.~Handle();
-        break;
-    }
-}
-
-void vpg::gl::Renderable::serialize(std::ostream& os) {
-    os << (int)this->type;
-    switch (this->type) {
-    case Type::Model:
-        os << this->model.get_asset()->get_id() << '\n';
-        break;
-    }
-}
-
-void vpg::gl::Renderable::deserialize(std::istream& is) {
-    int type;
-    std::string str;
-    is >> type;
-    this->type = (Type)type;
-    switch (this->type) {
-    case Type::Model:
-        is >> str;
-        this->model = data::Manager::load<data::Model>(str);
-        break;
-    default:
-        std::cerr << "vpg::gl::Renderable::deserialize() failed:\n"
-                  << "Unknown renderable type " << type << '\n';
         break;
     }
 }

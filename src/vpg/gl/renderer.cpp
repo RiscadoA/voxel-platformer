@@ -23,8 +23,9 @@ vpg::gl::Renderer::Renderer(glm::ivec2 size, CameraSystem* camera_sys, LightSyst
     this->model_shader = data::Manager::load<data::Shader>("shader.model");
     this->model_shader->get_shader().bind_uniform_buffer("Palette", 0);
 
-    //this->sky_color = glm::vec3(0.1f, 0.5f, 0.8f);
-    this->sky_color = glm::vec3(0.8f, 0.8f, 0.8f);
+    this->sky_color = glm::vec3(0.1f, 0.5f, 0.8f);
+    //this->sky_color = glm::vec3(0.8f, 0.8f, 0.8f);
+    //this->sky_color = glm::vec3(0.0f, 0.0f, 0.0f);
     this->wireframe = false;
     this->debug_rendering = false;
 

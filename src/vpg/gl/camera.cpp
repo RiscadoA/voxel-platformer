@@ -8,12 +8,41 @@
 using namespace vpg;
 using namespace vpg::gl;
 
-Camera::Camera(ecs::Entity entity, float fov, float aspect_ratio, float z_near, float z_far) :
-    entity(entity), fov(fov), aspect_ratio(aspect_ratio), z_near(z_near), z_far(z_far) {
+bool Camera::Info::serialize(memory::Stream& stream) const {
+    stream.write_comment("Camera", 0);
+    stream.write_comment("FOV", 1);
+    stream.write_f32(this->fov);
+    stream.write_comment("Aspect Ratio", 1);
+    stream.write_f32(this->aspect_ratio);
+    stream.write_comment("Z Near", 1);
+    stream.write_f32(this->z_near);
+    stream.write_comment("Z Far", 1);
+    stream.write_f32(this->z_far);
+
+    return !stream.failed();
+}
+
+bool Camera::Info::deserialize(memory::Stream& stream) {
+    this->fov = stream.read_f32();
+    this->aspect_ratio = stream.read_f32();
+    this->z_near = stream.read_f32();
+    this->z_far = stream.read_f32();
+
+    return !stream.failed();
+}
+
+Camera::Camera(ecs::Entity entity, const Info& create_info) {
+    this->entity = entity;
+    this->fov = create_info.fov;
+    this->aspect_ratio = create_info.aspect_ratio;
+    this->z_near = create_info.z_near;
+    this->z_far = create_info.z_far;
+
+    this->view = glm::mat4(1.0f);
+    this->proj = glm::mat4(1.0f);
     for (int i = 0; i < 6; ++i) {
         this->frustum_planes[i] = glm::vec4(0.0f);
     }
-     this->proj = glm::mat4(1.0f);
 }
 
 void Camera::set_fov(float fov) {
@@ -61,14 +90,6 @@ void Camera::update() {
     this->frustum_planes[3] = m[3] - m[1]; // Top
     this->frustum_planes[4] = m[3] + m[2]; // Near
     this->frustum_planes[5] = m[3] - m[2]; // Far
-}
-
-void vpg::gl::Camera::serialize(std::ostream& os) {
-    os << this->fov << this->aspect_ratio << this->z_near << this->z_far;
-}
-
-void vpg::gl::Camera::deserialize(std::istream& is) {
-    is >> this->fov >> this->aspect_ratio >> this->z_near >> this->z_far;
 }
 
 CameraSystem::CameraSystem() {

@@ -2,9 +2,10 @@
 
 #include <vpg/ecs/coordinator.hpp>
 #include <vpg/data/model.hpp>
+#include <vpg/memory/stream.hpp>
 
 namespace vpg::gl {
-    struct Renderable : public ecs::Component {
+    struct Renderable {
         static constexpr char TypeName[] = "Renderable";
 
         enum class Type {
@@ -12,17 +13,21 @@ namespace vpg::gl {
             Model,
         } type;
 
-        union {
+        struct Info {
+            Type type;
             data::Handle<data::Model> model;
+
+            bool serialize(memory::Stream& stream) const;
+            bool deserialize(memory::Stream& stream);
         };
 
-        Renderable();
-        Renderable(data::Handle<data::Model> model);
+        Renderable(ecs::Entity entity, const Info& create_info);
         Renderable(Renderable&& rhs) noexcept;
         ~Renderable();
 
-        virtual void serialize(std::ostream& os) override;
-        virtual void deserialize(std::istream& is) override;
+        union {
+            data::Handle<data::Model> model;
+        };
     };
 
     class RenderableSystem : public ecs::System {

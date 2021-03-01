@@ -51,7 +51,7 @@ set (SOURCE_FILES
 
 	"src/vpg/ecs/entity_manager.hpp"
 	"src/vpg/ecs/entity_manager.cpp"
-	"src/vpg/ecs/component.hpp"
+	
 	"src/vpg/ecs/component_manager.hpp"
 	"src/vpg/ecs/component_manager.cpp"
 	"src/vpg/ecs/component_array.hpp"
