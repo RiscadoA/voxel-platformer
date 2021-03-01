@@ -64,7 +64,7 @@ set (SOURCE_FILES
 	"src/vpg/ecs/transform.cpp"
 	"src/vpg/ecs/behaviour.hpp"
 	"src/vpg/ecs/behaviour.cpp"
-)
+ "src/vpg/memory/stream.hpp" "src/vpg/memory/stream.cpp")
 	
 add_executable(vpg ${SOURCE_FILES})
 set_target_properties(vpg PROPERTIES
