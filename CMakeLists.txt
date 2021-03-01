@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.7)
 project(voxel-platformer VERSION 0.1.0 LANGUAGES CXX)
 
-set (SOURCE_FILES
+set (VPG_SOURCE_FILES
 	"src/vpg/entry.cpp"
 	"src/vpg/config.hpp"
 	"src/vpg/config.cpp"
@@ -9,7 +9,16 @@ set (SOURCE_FILES
 	"src/vpg/memory/endianness.hpp"
 	"src/vpg/memory/pool.hpp"
 	"src/vpg/memory/pool.cpp"
-	
+	"src/vpg/memory/stream.hpp"
+	"src/vpg/memory/stream.cpp" 
+	"src/vpg/memory/text_stream.hpp"
+	"src/vpg/memory/stream_buffer.hpp"
+	"src/vpg/memory/std_stream_buffer.hpp"
+	"src/vpg/memory/std_stream_buffer.cpp"
+	"src/vpg/memory/text_stream.cpp"
+	"src/vpg/memory/string_stream_buffer.hpp"
+	"src/vpg/memory/string_stream_buffer.cpp"
+
 	"src/vpg/gl/camera.hpp"
 	"src/vpg/gl/camera.cpp"
 	"src/vpg/gl/shader.hpp"
@@ -48,10 +57,11 @@ set (SOURCE_FILES
 	"src/vpg/data/qb_parser.cpp"
 	"src/vpg/data/model.hpp"
 	"src/vpg/data/model.cpp"
+	"src/vpg/data/text.hpp"
+	"src/vpg/data/text.cpp"
 
 	"src/vpg/ecs/entity_manager.hpp"
 	"src/vpg/ecs/entity_manager.cpp"
-	
 	"src/vpg/ecs/component_manager.hpp"
 	"src/vpg/ecs/component_manager.cpp"
 	"src/vpg/ecs/component_array.hpp"
@@ -60,17 +70,23 @@ set (SOURCE_FILES
 	"src/vpg/ecs/coordinator.hpp"
 	"src/vpg/ecs/coordinator.cpp"
 
+	"src/vpg/ecs/scene.hpp"
+	"src/vpg/ecs/scene.cpp"
 	"src/vpg/ecs/transform.hpp"
 	"src/vpg/ecs/transform.cpp"
 	"src/vpg/ecs/behaviour.hpp"
 	"src/vpg/ecs/behaviour.cpp"
- "src/vpg/memory/stream.hpp" "src/vpg/memory/stream.cpp"  "src/vpg/ecs/scene.hpp" "src/vpg/ecs/scene.cpp" "src/vpg/memory/text_stream.hpp" "src/vpg/memory/stream_buffer.hpp" "src/vpg/memory/std_stream_buffer.hpp" "src/vpg/memory/std_stream_buffer.cpp" "src/vpg/memory/text_stream.cpp" "src/vpg/memory/string_stream_buffer.hpp" "src/vpg/memory/string_stream_buffer.cpp" "src/vpg/data/text.hpp" "src/vpg/data/text.cpp")
-	
-add_executable(vpg ${SOURCE_FILES})
+)
+
+set (GAME_SOURCE_FILES
+	"src/game/load.cpp"
+	"src/game/camera_controller.cpp"
+ "src/game/camera_controller.hpp")
+
+add_library(vpg ${VPG_SOURCE_FILES})
 set_target_properties(vpg PROPERTIES
 	CXX_STANDARD 17
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
-	VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
 target_compile_definitions(vpg
@@ -83,7 +99,7 @@ target_compile_definitions(vpg
 )
 
 target_include_directories(vpg
-	PRIVATE
+	PUBLIC
 		"src/"
 )
 
@@ -102,3 +118,12 @@ target_link_libraries(vpg PRIVATE glfw)
 
 find_package(freetype CONFIG REQUIRED)
 target_link_libraries(vpg PRIVATE freetype)
+
+add_executable(game ${GAME_SOURCE_FILES})
+set_target_properties(game PROPERTIES
+	CXX_STANDARD 17
+	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
+	VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+)
+
+target_link_libraries(game PUBLIC vpg)
