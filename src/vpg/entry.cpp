@@ -13,6 +13,8 @@
 #include <vpg/memory/string_stream_buffer.hpp>
 #include <vpg/memory/text_stream.hpp>
 
+#include <vpg/input/window.hpp>
+
 #include <vpg/gl/renderer.hpp>
 #include <vpg/gl/debug.hpp>
 
@@ -78,33 +80,7 @@ void APIENTRY gl_debug_output(
 int main(int argc, char** argv) {
     Config::load(argc, argv);
 
-    // Initialize GLFW
-    if (!glfwInit()) {
-        std::cerr << "glfwInit() failed\n";
-        return 1;
-    }
-
-    // Open window
-    glm::ivec2 window_sz = {
-        Config::get_integer("window.width", 800),
-        Config::get_integer("window.height", 600)
-    };
-
-    bool fullscreen = Config::get_boolean("window.fullscreen", false);
-
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-    GLFWwindow* window = glfwCreateWindow(
-        window_sz.x,
-        window_sz.y,
-        "Voxel Platformer Game",
-        fullscreen ? glfwGetPrimaryMonitor() : nullptr,
-        nullptr
-    );
-
-    glfwMakeContextCurrent(window);
+    input::Window::init();
 
     // Initialize GLEW
     GLenum glew_status = glewInit();
@@ -150,7 +126,7 @@ int main(int argc, char** argv) {
     auto renderable_sys = ecs::Coordinator::register_system<gl::RenderableSystem>();
 
     gl::Debug::init();
-    auto renderer = new gl::Renderer(window_sz, camera_sys, light_sys, renderable_sys);
+    auto renderer = new gl::Renderer(camera_sys, light_sys, renderable_sys);
 
     if (!load_game(scene)) {
         std::cerr << "Couldn't load game\n";
@@ -161,8 +137,8 @@ int main(int argc, char** argv) {
     
     auto last_time = (float)glfwGetTime();
     auto delta_time = 0.0f;
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
+    while (!input::Window::should_close()) {
+        input::Window::poll_events();
 
         // Update behaviours
         behaviour_sys->update(delta_time);
@@ -170,7 +146,7 @@ int main(int argc, char** argv) {
         // Render here
         renderer->render(delta_time);
 
-        glfwSwapBuffers(window);
+        input::Window::swap_buffers();
 
         // Calculate delta time
         auto new_time = (float)glfwGetTime();
@@ -188,7 +164,7 @@ int main(int argc, char** argv) {
     // Unload assets
     data::Manager::terminate();
 
-    glfwTerminate();
+    input::Window::terminate();
 
     return 0;
 }

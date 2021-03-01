@@ -12,8 +12,6 @@ bool Camera::Info::serialize(memory::Stream& stream) const {
     stream.write_comment("Camera", 0);
     stream.write_comment("FOV", 1);
     stream.write_f32(this->fov);
-    stream.write_comment("Aspect Ratio", 1);
-    stream.write_f32(this->aspect_ratio);
     stream.write_comment("Z Near", 1);
     stream.write_f32(this->z_near);
     stream.write_comment("Z Far", 1);
@@ -24,7 +22,6 @@ bool Camera::Info::serialize(memory::Stream& stream) const {
 
 bool Camera::Info::deserialize(memory::Stream& stream) {
     this->fov = stream.read_f32();
-    this->aspect_ratio = stream.read_f32();
     this->z_near = stream.read_f32();
     this->z_far = stream.read_f32();
 
@@ -34,7 +31,7 @@ bool Camera::Info::deserialize(memory::Stream& stream) {
 Camera::Camera(ecs::Entity entity, const Info& create_info) {
     this->entity = entity;
     this->fov = create_info.fov;
-    this->aspect_ratio = create_info.aspect_ratio;
+    this->aspect_ratio = 1.0f;
     this->z_near = create_info.z_near;
     this->z_far = create_info.z_far;
 

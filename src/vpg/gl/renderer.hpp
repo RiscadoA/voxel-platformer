@@ -6,20 +6,24 @@
 
 #include <vpg/data/shader.hpp>
 
+#include <vpg/input/window.hpp>
+
 namespace vpg::gl {
     class Renderer {
     public:
-        Renderer(glm::ivec2 size, CameraSystem* camera_sys, LightSystem* light_sys, RenderableSystem* renderable_sys);
+        Renderer(CameraSystem* camera_sys, LightSystem* light_sys, RenderableSystem* renderable_sys);
         ~Renderer();
 
         void render(float dt);
-        void resize(glm::ivec2 size);
     
     private:
         void create_gbuffer();
         void destroy_gbuffer();
         void create_ssao();
         void destroy_ssao();
+
+        void resize_callback(glm::ivec2 size);
+        Listener resize_listener;
 
         CameraSystem* camera_sys;
         LightSystem* light_sys;

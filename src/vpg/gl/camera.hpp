@@ -11,7 +11,6 @@ namespace vpg::gl {
 
         struct Info {
             float fov = 70.0f;
-            float aspect_ratio = 1.0f;
             float z_near = 0.1f;
             float z_far = 1000.0f;
 

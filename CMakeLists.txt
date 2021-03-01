@@ -5,6 +5,7 @@ set (VPG_SOURCE_FILES
 	"src/vpg/entry.cpp"
 	"src/vpg/config.hpp"
 	"src/vpg/config.cpp"
+	"src/vpg/event.hpp"
 
 	"src/vpg/memory/endianness.hpp"
 	"src/vpg/memory/pool.hpp"
@@ -46,6 +47,8 @@ set (VPG_SOURCE_FILES
 	"src/vpg/gl/renderer.cpp"
 
 	"src/vpg/ecs/entity_manager.hpp"
+	
+	"src/vpg/data/manager.hpp"
 	"src/vpg/data/manager.cpp"
 	"src/vpg/data/asset.hpp"
 	"src/vpg/data/asset.cpp"
@@ -76,12 +79,20 @@ set (VPG_SOURCE_FILES
 	"src/vpg/ecs/transform.cpp"
 	"src/vpg/ecs/behaviour.hpp"
 	"src/vpg/ecs/behaviour.cpp"
+
+	"src/vpg/input/window.hpp"
+	"src/vpg/input/window.cpp"
+	"src/vpg/input/mouse.hpp"
+	"src/vpg/input/mouse.cpp"
+	"src/vpg/input/keyboard.cpp"
+	"src/vpg/input/keyboard.hpp"
 )
 
 set (GAME_SOURCE_FILES
 	"src/game/load.cpp"
 	"src/game/camera_controller.cpp"
- "src/game/camera_controller.hpp")
+	"src/game/camera_controller.hpp"
+)
 
 add_library(vpg ${VPG_SOURCE_FILES})
 set_target_properties(vpg PROPERTIES
@@ -111,7 +122,7 @@ find_package(OpenGL REQUIRED)
 target_link_libraries(vpg PRIVATE OpenGL::GL)
 
 find_package(glm REQUIRED)
-target_link_libraries(vpg PRIVATE glm)
+target_link_libraries(vpg PUBLIC glm)
 
 find_package(glfw3 REQUIRED)
 target_link_libraries(vpg PRIVATE glfw)

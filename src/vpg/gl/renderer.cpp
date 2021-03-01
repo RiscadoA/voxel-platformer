@@ -10,8 +10,8 @@
 using namespace vpg;
 using namespace vpg::gl;
 
-vpg::gl::Renderer::Renderer(glm::ivec2 size, CameraSystem* camera_sys, LightSystem* light_sys, RenderableSystem* renderable_sys) {
-    this->size = size;
+vpg::gl::Renderer::Renderer(CameraSystem* camera_sys, LightSystem* light_sys, RenderableSystem* renderable_sys) {
+    this->size = input::Window::get_framebuffer_size();
     this->camera_sys = camera_sys;
     this->light_sys = light_sys;
     this->renderable_sys = renderable_sys;
@@ -38,9 +38,15 @@ vpg::gl::Renderer::Renderer(glm::ivec2 size, CameraSystem* camera_sys, LightSyst
 
     this->create_gbuffer();
     this->create_ssao();
+
+    this->resize_listener = input::Window::FramebufferResized.add_listener(
+        std::bind(&Renderer::resize_callback, this, std::placeholders::_1)
+    );
 }
 
 vpg::gl::Renderer::~Renderer() {
+    input::Window::FramebufferResized.remove_listener(this->resize_listener);
+
     this->destroy_ssao();
     this->destroy_gbuffer();
 
@@ -54,6 +60,7 @@ void vpg::gl::Renderer::render(float dt) {
         return;
     }
     auto& camera = *ecs::Coordinator::get_component<Camera>(*this->camera_sys->entities.begin());
+    camera.set_aspect_ratio((float)this->size.x / (float)this->size.y);
     camera.update();
 
     // Update lights UBO
@@ -90,6 +97,8 @@ void vpg::gl::Renderer::render(float dt) {
     }
     glUnmapBuffer(GL_UNIFORM_BUFFER);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glViewport(0, 0, this->size.x, this->size.y);
 
     // Opaque pass
     glBindFramebuffer(GL_FRAMEBUFFER, this->gbuffer.fbo);
@@ -212,7 +221,7 @@ void vpg::gl::Renderer::render(float dt) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void vpg::gl::Renderer::resize(glm::ivec2 size) {
+void vpg::gl::Renderer::resize_callback(glm::ivec2 size) {
     this->destroy_gbuffer();
     this->destroy_ssao();
     this->size = size;

@@ -1,5 +1,8 @@
 #include <vpg/ecs/behaviour.hpp>
 
+#include <vpg/input/mouse.hpp>
+#include <vpg/input/keyboard.hpp>
+
 class CameraController : public vpg::ecs::IBehaviour {
 public:
     static constexpr char TypeName[] = "CameraController";
@@ -15,6 +18,10 @@ public:
     virtual void update(float dt) override;
 
 private:
+    void mouse_move_callback(glm::vec2 mouse);
+    vpg::Listener mouse_move_listener;
+
     vpg::ecs::Entity entity;
+    glm::vec2 last_mouse;
     float sensitivity, speed;
 };

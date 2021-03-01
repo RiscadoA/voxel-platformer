@@ -1,9 +1,19 @@
 #include "camera_controller.hpp"
 
+#include <vpg/input/mouse.hpp>
+#include <vpg/input/keyboard.hpp>
 #include <vpg/config.hpp>
+
+#include <vpg/ecs/transform.hpp>
+
+#include <glm/gtc/quaternion.hpp>
 
 using namespace vpg;
 using namespace vpg::ecs;
+
+using input::Keyboard;
+using input::Mouse;
+using Key = Keyboard::Key;
 
 bool CameraController::Info::serialize(memory::Stream& stream) const {
     return true;
@@ -13,62 +23,61 @@ bool CameraController::Info::deserialize(memory::Stream& stream) {
     return true;
 }
 
-/*void CameraBehaviour::glfw_cursor_pos_callback(GLFWwindow* win, double x, double y) {
-    auto behaviour = CameraBehaviour::current_camera;
-    auto transform = ecs::Coordinator::get_component<ecs::Transform>(behaviour->entity);
-
-    static double px = INFINITY, py;
-    if (px != INFINITY) {
-        glm::quat rot = glm::angleAxis((float)(py - y) * behaviour->sensitivity, glm::vec3(1.0f, 0.0f, 0.0f)) *
-            glm::angleAxis((float)(px - x) * behaviour->sensitivity, glm::vec3(0.0f, 1.0f, 0.0f));
-        transform->rotate(rot);
-    }
-
-    px = x;
-    py = y;
-}*/
-
 CameraController::CameraController(Entity entity, const Info& info) {
     this->entity = entity;
-    this->sensitivity = (float)Config::get_float("camera.sensitivity", 10.0);
+    this->sensitivity = (float)Config::get_float("camera.sensitivity", 0.001);
     this->speed = (float)Config::get_float("camera.speed", 10.0);
+    this->last_mouse = glm::vec2(INFINITY, INFINITY);
 
-    /*this->old_callback = glfwSetCursorPosCallback(window, glfw_cursor_pos_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    CameraBehaviour::current_camera = this;*/
+    Mouse::set_mode(Mouse::Mode::Disabled);
+    this->mouse_move_listener = Mouse::Move.add_listener(
+        std::bind(&CameraController::mouse_move_callback, this, std::placeholders::_1)
+    );
 }
 
 CameraController::~CameraController() {
-    /*glfwSetCursorPosCallback(window, this->old_callback);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    CameraBehaviour::current_camera = nullptr;*/
+    Mouse::Move.remove_listener(this->mouse_move_listener);
+    Mouse::set_mode(Mouse::Mode::Normal);
 }
 
 void CameraController::update(float dt) {
-    /*auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
+    auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+    if (Keyboard::is_key_pressed(Key::W)) {
         transform->translate(transform->get_forward() * dt * this->speed);
     }
-    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+    else if (Keyboard::is_key_pressed(Key::S)) {
         transform->translate(-transform->get_forward() * dt * this->speed);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+    if (Keyboard::is_key_pressed(Key::D)) {
         transform->translate(transform->get_right() * dt * this->speed);
     }
-    else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+    else if (Keyboard::is_key_pressed(Key::A)) {
         transform->translate(-transform->get_right() * dt * this->speed);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+    if (Keyboard::is_key_pressed(Key::E)) {
         transform->translate(transform->get_up() * dt * this->speed);
     }
-    else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+    else if (Keyboard::is_key_pressed(Key::Q)) {
         transform->translate(-transform->get_up() * dt * this->speed);
     }
 
-    if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+    if (Keyboard::is_key_pressed(Key::L)) {
         transform->look_at(glm::vec3(0.0f, 0.0f, -50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    }*/
+    }
+}
+
+void CameraController::mouse_move_callback(glm::vec2 mouse) {
+    auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
+
+    if (this->last_mouse.x != INFINITY) {
+        auto delta = this->last_mouse - mouse;
+        glm::quat rot = glm::angleAxis(delta.x * this->sensitivity, glm::vec3(0.0f, 1.0f, 0.0f)) *
+                        glm::angleAxis(delta.y * this->sensitivity, glm::vec3(1.0f, 0.0f, 0.0f));
+        transform->rotate(rot);
+    }
+
+    this->last_mouse = mouse;
 }
