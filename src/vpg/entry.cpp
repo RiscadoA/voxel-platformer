@@ -168,6 +168,7 @@ int main(int argc, char** argv) {
     gl::Debug::terminate();
 
     // Clean-up ECS
+    scene->clean();
     ecs::Coordinator::terminate();
 
     // Unload assets

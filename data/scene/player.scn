@@ -1,10 +1,20 @@
 # Player scene
-5
+6
+
+$Controller
+2
+"Transform"
+$Null			# Parent
+0.0 0.0 0.0 	# Position
+0.5 0.5 0.5 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Behaviour" "PlayerController"
+$Torso $LFoot $RFoot $LHand $RHand
 
 $Torso
 3				# Number of components
 "Transform"
-$Null			# Parent
+$Controller		# Parent
 0.0 0.0 0.0 	# Position
 0.5 0.5 0.5 	# Scale
 0.0 0.0 0.0 1.0 # Rotation

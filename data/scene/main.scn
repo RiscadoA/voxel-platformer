@@ -1,4 +1,4 @@
-# Test scene
+# Main scene
 4
 
 $Sun
@@ -37,6 +37,6 @@ $Null			# Parent
 
 $Player
 1				# Number of components
-"Behaviour" "PlayerController"
+"Behaviour" "PlayerInstance"
 "scene.player"  # Player path
 0.0 9.0 -15.0 	# Position

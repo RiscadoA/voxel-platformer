@@ -8,43 +8,46 @@
 #include <vpg/ecs/scene.hpp>
 #include <vpg/physics/collider.hpp>
 
-#include <vpg/memory/string_stream_buffer.hpp>
-#include <vpg/memory/text_stream.hpp>
-
 #include <glm/gtc/quaternion.hpp>
-
-using namespace vpg;
-using namespace vpg::ecs;
 
 using input::Keyboard;
 using input::Mouse;
 using Key = Keyboard::Key;
 
 bool PlayerController::Info::serialize(memory::Stream& stream) const {
-    stream.write_string(this->scene.get_asset()->get_id());
-    stream.write_f32(this->position.x);
-    stream.write_f32(this->position.y);
-    stream.write_f32(this->position.z);
+    stream.write_ref(this->torso);
+    stream.write_ref(this->lfoot);
+    stream.write_ref(this->rfoot);
+    stream.write_ref(this->lhand);
+    stream.write_ref(this->rhand);
     return !stream.failed();
 }
 
 bool PlayerController::Info::deserialize(memory::Stream& stream) {
-    this->scene = data::Manager::load<data::Text>(stream.read_string());
-    this->position.x = stream.read_f32();
-    this->position.y = stream.read_f32();
-    this->position.z = stream.read_f32();
-    return !stream.failed() && this->scene.get_asset() != nullptr;
+    this->torso = stream.read_ref();
+    this->lfoot = stream.read_ref();
+    this->rfoot = stream.read_ref();
+    this->lhand = stream.read_ref();
+    this->rhand = stream.read_ref();
+    return !stream.failed();
 }
 
-PlayerController::PlayerController(Entity entity, const Info& info) {
-    auto stream_buf = memory::StringStreamBuffer(info.scene->get_content());
-    auto stream = memory::TextStream(&stream_buf);
-    this->player = Scene::deserialize_tree(stream);
+PlayerController::PlayerController(ecs::Entity entity, const Info& info) {
+    this->entity = entity;
+    this->torso = info.torso;
+    this->lfoot = info.lfoot;
+    this->rfoot = info.rfoot;
+    this->lhand = info.lhand;
+    this->rhand = info.rhand;
 
-    auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->player);
-    transform->set_position(info.position);
+    //auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->player);
+    //transform->set_position(info.position);
 }
 
-void PlayerController::update(float dt) {
-    
+PlayerController::~PlayerController() {
+    ecs::Coordinator::destroy_entity(this->torso);
+    ecs::Coordinator::destroy_entity(this->lfoot);
+    ecs::Coordinator::destroy_entity(this->rfoot);
+    ecs::Coordinator::destroy_entity(this->lhand);
+    ecs::Coordinator::destroy_entity(this->rhand);
 }

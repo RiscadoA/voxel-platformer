@@ -88,9 +88,8 @@ Entity Scene::deserialize_tree(memory::Stream& stream) {
 }
 
 void Scene::clean() {
-    for (auto it = this->entities.begin(); it != this->entities.end();) {
-        Entity e = *(it++);
-        Coordinator::destroy_entity(e);
+    while (!this->entities.empty()) {
+        Coordinator::destroy_entity(*this->entities.begin());
     }
 }
 

@@ -11,16 +11,19 @@ struct PlayerController : public ecs::IBehaviour {
     static constexpr char TypeName[] = "PlayerController";
 
     struct Info : public IBehaviour::Info {
-        data::Handle<data::Text> scene;
-        glm::vec3 position;
+        ecs::Entity torso;
+        ecs::Entity lfoot, rfoot;
+        ecs::Entity lhand, rhand;
 
         virtual bool serialize(memory::Stream& stream) const override;
         virtual bool deserialize(memory::Stream& stream) override;
     };
 
-    PlayerController(vpg::ecs::Entity entity, const Info& info);
+    PlayerController(ecs::Entity entity, const Info& info);
+    ~PlayerController();
 
-    virtual void update(float dt) override;
-
-    ecs::Entity player;
+    ecs::Entity entity;
+    ecs::Entity torso;
+    ecs::Entity lfoot, rfoot;
+    ecs::Entity lhand, rhand;
 };

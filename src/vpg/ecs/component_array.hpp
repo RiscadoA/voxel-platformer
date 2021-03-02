@@ -55,10 +55,11 @@ namespace vpg::ecs {
 			abort();
 		}
 
-		new (&this->components[this->count]) T(entity, create_info);
-		this->index_to_entity.emplace(this->count, entity);
-		this->entity_to_index.emplace(entity, this->count);
-		return this->components[this->count++];
+		size_t index = this->count++;
+		new (&this->components[index]) T(entity, create_info);
+		this->index_to_entity.emplace(index, entity);
+		this->entity_to_index.emplace(entity, index);
+		return this->components[index];
 	}
 
 	template<typename T>
@@ -74,11 +75,12 @@ namespace vpg::ecs {
 		this->entity_to_index.erase(it);
 
 		this->count -= 1;
+		size_t last = this->count;
 		this->components[index].~T();
-		new (&this->components[this->count]) T(std::move(this->components[this->count]));
-		this->components[this->count].~T();
-		auto last_entity = this->index_to_entity[this->count];
-		this->index_to_entity.erase(this->count);
+		new (&this->components[index]) T(std::move(this->components[last]));
+		this->components[last].~T();
+		auto last_entity = this->index_to_entity[last];
+		this->index_to_entity.erase(last);
 		this->entity_to_index[last_entity] = index;
 		this->index_to_entity[index] = last_entity;
 	}
