@@ -1,6 +1,8 @@
 #include <vpg/physics/collider.hpp>
 #include <vpg/ecs/transform.hpp>
 
+#include <vpg/gl/debug.hpp>
+
 using namespace vpg;
 using namespace vpg::physics;
 
@@ -73,12 +75,29 @@ void ColliderSystem::update() {
     Manifold manifold;
 
     for (auto it_a = this->entities.begin(); it_a != this->entities.end();) {
-        for (auto it_b = it_a++; it_b != this->entities.end(); ++it_b) {
-            auto col_a = ecs::Coordinator::get_component<Collider>(*it_a);
-            auto col_b = ecs::Coordinator::get_component<Collider>(*it_b);
+        auto a = *it_a;
+        auto transform_a = ecs::Coordinator::get_component<ecs::Transform>(a);
+        auto col_a = ecs::Coordinator::get_component<Collider>(a);
 
-            manifold.a = *it_a;
-            manifold.b = *it_b;
+        switch (col_a->type) {
+        case Collider::Type::Sphere:
+            gl::Debug::draw_sphere(transform_a->get_global_position(), col_a->sphere.radius, { 1.0f, 1.0f, 1.0f, 1.0f });
+            break;
+        case Collider::Type::AABB:
+        {
+            auto center = (col_a->aabb.min + col_a->aabb.max) / 2.0f;
+            auto scale = (col_a->aabb.max - col_a->aabb.min) / 2.0f;
+            gl::Debug::draw_box(transform_a->get_global_position() + center, scale, { 1.0f, 1.0f, 1.0f, 1.0f });
+            break;
+        }  
+        }
+
+        for (auto it_b = ++it_a; it_b != this->entities.end(); ++it_b) {
+            auto b = *it_b;
+            auto col_b = ecs::Coordinator::get_component<Collider>(b);
+
+            manifold.a = a;
+            manifold.b = b;
 
             bool collided;
             if (col_a->type == Collider::Type::Sphere) {
@@ -99,6 +118,8 @@ void ColliderSystem::update() {
             }
 
             if (collided) {
+                col_a->on_collision.fire(manifold);
+                col_b->on_collision.fire(manifold);
                 this->manifolds.push_back(manifold);
             }
         }

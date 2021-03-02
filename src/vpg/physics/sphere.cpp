@@ -8,7 +8,7 @@ using namespace vpg::physics;
 
 bool vpg::physics::sphere_vs_sphere(Manifold& manifold) {
     auto transform_a = ecs::Coordinator::get_component<ecs::Transform>(manifold.a);
-    auto transform_b = ecs::Coordinator::get_component<ecs::Transform>(manifold.a);
+    auto transform_b = ecs::Coordinator::get_component<ecs::Transform>(manifold.b);
     auto col_a = ecs::Coordinator::get_component<Collider>(manifold.a);
     auto col_b = ecs::Coordinator::get_component<Collider>(manifold.b);
     assert(transform_a != nullptr && transform_b != nullptr &&

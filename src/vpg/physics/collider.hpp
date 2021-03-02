@@ -8,6 +8,8 @@
 #include <vpg/physics/sphere.hpp>
 #include <vpg/physics/aabb.hpp>
 
+#include <vpg/event.hpp>
+
 #include <glm/glm.hpp>
 
 namespace vpg::physics {
@@ -31,6 +33,8 @@ namespace vpg::physics {
         Collider(ecs::Entity entity, const Info& create_info);
         Collider(Collider&& rhs) noexcept = default;
         ~Collider() = default;
+
+        Event<const Manifold&> on_collision;
         
         Type type;
         Sphere sphere;

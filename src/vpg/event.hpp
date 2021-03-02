@@ -9,6 +9,9 @@ namespace vpg {
     template <typename ... TArgs>
     class Event {
     public:
+        Event() = default;
+        Event(Event&&) = default;
+
         Listener add_listener(std::function<void(TArgs...)> listener);
         void remove_listener(Listener listener);
         void fire(TArgs... args);

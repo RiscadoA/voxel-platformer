@@ -94,13 +94,13 @@ set (VPG_SOURCE_FILES
 	"src/vpg/physics/sphere.cpp"
 	"src/vpg/physics/aabb.hpp"
 	"src/vpg/physics/aabb.cpp"
-)
+ )
 
 set (GAME_SOURCE_FILES
 	"src/game/load.cpp"
 	"src/game/camera_controller.cpp"
 	"src/game/camera_controller.hpp"
-)
+ "src/game/player_controller.cpp" "src/game/player_controller.hpp")
 
 add_library(vpg ${VPG_SOURCE_FILES})
 set_target_properties(vpg PROPERTIES

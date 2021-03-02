@@ -8,40 +8,44 @@ using namespace vpg::physics;
 
 bool vpg::physics::aabb_vs_aabb(Manifold& manifold) {
     auto transform_a = ecs::Coordinator::get_component<ecs::Transform>(manifold.a);
-    auto transform_b = ecs::Coordinator::get_component<ecs::Transform>(manifold.a);
+    auto transform_b = ecs::Coordinator::get_component<ecs::Transform>(manifold.b);
     auto col_a = ecs::Coordinator::get_component<Collider>(manifold.a);
     auto col_b = ecs::Coordinator::get_component<Collider>(manifold.b);
     assert(transform_a != nullptr && transform_b != nullptr &&
            col_a != nullptr && col_b != nullptr);
 
-    auto n = transform_b->get_global_position() - transform_a->get_global_position();
+    auto center_a = (col_a->aabb.min + col_a->aabb.max) / 2.0f;
+    auto center_b = (col_b->aabb.min + col_b->aabb.max) / 2.0f;
+
+    auto n = transform_b->get_global_position() + center_b
+           - transform_a->get_global_position() - center_a;
 
     float a_extent = (col_a->aabb.max.x - col_a->aabb.min.x) / 2.0f;
     float b_extent = (col_b->aabb.max.x - col_b->aabb.min.x) / 2.0f;
-    float x_overlap = a_extent + b_extent + fabsf(n.x);
+    float x_overlap = a_extent + b_extent - fabsf(n.x);
     if (x_overlap <= 0.0f) {
         return false;
     }
 
     a_extent = (col_a->aabb.max.y - col_a->aabb.min.y) / 2.0f;
     b_extent = (col_b->aabb.max.y - col_b->aabb.min.y) / 2.0f;
-    float y_overlap = a_extent + b_extent + fabsf(n.y);
+    float y_overlap = a_extent + b_extent - fabsf(n.y);
     if (y_overlap < 0.0f) {
         return false;
     }
 
     a_extent = (col_a->aabb.max.z - col_a->aabb.min.z) / 2.0f;
     b_extent = (col_b->aabb.max.z - col_b->aabb.min.z) / 2.0f;
-    float z_overlap = a_extent + b_extent + fabsf(n.z);
+    float z_overlap = a_extent + b_extent - fabsf(n.z);
     if (z_overlap < 0.0f) {
         return false;
     }
 
-    if (x_overlap > y_overlap && x_overlap > z_overlap) {
+    if (x_overlap < y_overlap && x_overlap < z_overlap) {
         manifold.normal = glm::vec3(n.x < 0 ? -1.0f : 1.0f, 0.0f, 0.0f);
         manifold.penetration = x_overlap;
     }
-    else if (y_overlap > x_overlap && y_overlap > z_overlap) {
+    else if (y_overlap < x_overlap && y_overlap < z_overlap) {
         manifold.normal = glm::vec3(0.0f, n.y < 0 ? -1.0f : 1.0f, 0.0f);
         manifold.penetration = y_overlap;
     }
@@ -55,13 +59,15 @@ bool vpg::physics::aabb_vs_aabb(Manifold& manifold) {
 
 bool vpg::physics::aabb_vs_sphere(Manifold& manifold) {
     auto transform_a = ecs::Coordinator::get_component<ecs::Transform>(manifold.a);
-    auto transform_b = ecs::Coordinator::get_component<ecs::Transform>(manifold.a);
+    auto transform_b = ecs::Coordinator::get_component<ecs::Transform>(manifold.b);
     auto col_a = ecs::Coordinator::get_component<Collider>(manifold.a);
     auto col_b = ecs::Coordinator::get_component<Collider>(manifold.b);
     assert(transform_a != nullptr && transform_b != nullptr &&
            col_a != nullptr && col_b != nullptr);
 
-    auto n = transform_b->get_global_position() - transform_a->get_global_position();
+    auto center_a = (col_a->aabb.min + col_a->aabb.max) / 2.0f;
+
+    auto n = transform_b->get_global_position() - transform_a->get_global_position() - center_a;
     auto closest = n;
 
     float x_extent = (col_a->aabb.max.x - col_a->aabb.min.x) / 2.0f;

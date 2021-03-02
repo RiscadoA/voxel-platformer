@@ -27,7 +27,7 @@ vpg::gl::Renderer::Renderer(CameraSystem* camera_sys, LightSystem* light_sys, Re
     //this->sky_color = glm::vec3(0.8f, 0.8f, 0.8f);
     //this->sky_color = glm::vec3(0.0f, 0.0f, 0.0f);
     this->wireframe = false;
-    this->debug_rendering = false;
+    this->debug_rendering = true;
 
     glGenVertexArrays(1, &this->screen_va);
 

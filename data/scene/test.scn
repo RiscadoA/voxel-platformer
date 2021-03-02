@@ -14,7 +14,7 @@ Behaviour
 CameraController
 
 # Floor
-2
+3
 Transform
 -1
 0.0 -1.0 0.0 # Position
@@ -23,9 +23,13 @@ Transform
 Renderable
 Model
 model.floor
+Collider
+AABB
+-32.0 -0.5 -32.0
++32.0 +0.5 +32.0
 
 # Character
-2
+4
 Transform
 -1
 0.0 9.0 -15.0 # Position
@@ -34,6 +38,12 @@ Transform
 Renderable
 Model
 model.chr_knight
+Collider
+AABB
+-5.0 -5.0 -2.25
++4.0 +2.5 +1.75
+Behaviour
+PlayerController
 
 # Light
 2
