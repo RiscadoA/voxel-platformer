@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdint>
 #include <unordered_map>
+#include <stack>
 
 namespace vpg::memory {
     class Stream {
@@ -40,16 +41,18 @@ namespace vpg::memory {
         void add_ref_map(int64_t write, int64_t read);
         int64_t ref_read_to_write(int64_t ref);
         int64_t ref_write_to_read(int64_t ref);
-        void clear_ref_map();
+        void push_ref_map();
+        void pop_ref_map();
         void set_failed();
         bool failed() const;
 
     protected:
-        inline virtual void clear_ref_map_custom() {}
+        inline virtual void push_ref_map_custom() {}
+        inline virtual void pop_ref_map_custom() {}
         inline virtual int64_t read_ref_custom() { return this->read_i64(); }
 
     private:
         bool failed_flag;
-        std::unordered_map<int64_t, int64_t> ref_map;
+        std::stack<std::unordered_map<int64_t, int64_t>> ref_map;
     };
 }

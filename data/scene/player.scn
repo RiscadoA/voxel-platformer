@@ -1,0 +1,50 @@
+# Player scene
+5
+
+$Torso
+3				# Number of components
+"Transform"
+$Null			# Parent
+0.0 0.0 0.0 	# Position
+0.5 0.5 0.5 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Renderable" "Model" "model.player.torso"
+"Collider" "AABB"
+-2.5 -4.75 -1.25 # Min
++2.5 +4.75 +1.75 # Max
+
+$LFoot
+2				# Number of components
+"Transform"
+$Torso			# Parent
+3.0 -13.0 0.5 	# Position
+1.0 1.0 1.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Renderable" "Model" "model.player.lfoot"
+
+$RFoot
+2				# Number of components
+"Transform"
+$Torso			# Parent
+-3.0 -13.0 0.5 	# Position
+1.0 1.0 1.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Renderable" "Model" "model.player.rfoot"
+
+$LHand
+2				# Number of components
+"Transform"
+$Torso			# Parent
+6.5 -3.0 2.0 	# Position
+1.0 1.0 1.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Renderable" "Model" "model.player.lhand"
+
+$RHand
+2				# Number of components
+"Transform"
+$Torso			# Parent
+-6.5 -3.0 2.0 	# Position
+1.0 1.0 1.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Renderable" "Model" "model.player.rhand"

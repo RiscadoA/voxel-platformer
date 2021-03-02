@@ -5,7 +5,11 @@
 #include <vpg/config.hpp>
 
 #include <vpg/ecs/transform.hpp>
+#include <vpg/ecs/scene.hpp>
 #include <vpg/physics/collider.hpp>
+
+#include <vpg/memory/string_stream_buffer.hpp>
+#include <vpg/memory/text_stream.hpp>
 
 #include <glm/gtc/quaternion.hpp>
 
@@ -17,32 +21,30 @@ using input::Mouse;
 using Key = Keyboard::Key;
 
 bool PlayerController::Info::serialize(memory::Stream& stream) const {
-    return true;
+    stream.write_string(this->scene.get_asset()->get_id());
+    stream.write_f32(this->position.x);
+    stream.write_f32(this->position.y);
+    stream.write_f32(this->position.z);
+    return !stream.failed();
 }
 
 bool PlayerController::Info::deserialize(memory::Stream& stream) {
-    return true;
+    this->scene = data::Manager::load<data::Text>(stream.read_string());
+    this->position.x = stream.read_f32();
+    this->position.y = stream.read_f32();
+    this->position.z = stream.read_f32();
+    return !stream.failed() && this->scene.get_asset() != nullptr;
 }
 
 PlayerController::PlayerController(Entity entity, const Info& info) {
-    this->entity = entity;
+    auto stream_buf = memory::StringStreamBuffer(info.scene->get_content());
+    auto stream = memory::TextStream(&stream_buf);
+    this->player = Scene::deserialize_tree(stream);
 
-    auto collider = ecs::Coordinator::get_component<physics::Collider>(entity);
-    collider->on_collision.add_listener([this](const physics::Manifold& manifold) {
-        this->velocity = -this->velocity;
-        auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
-        transform->translate(manifold.normal * manifold.penetration);
-
-        std::cout << "Collision\n";
-    });
-
-    this->velocity = false;
+    auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->player);
+    transform->set_position(info.position);
 }
 
 void PlayerController::update(float dt) {
-    auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
-
-    this->velocity -= 9.81 * dt;
-
-    transform->translate(glm::vec3(0.0f, this->velocity, 0.0f) * dt);
+    
 }

@@ -11,7 +11,7 @@ bool Scene::deserialize(memory::Stream& stream) {
     this->clean();
 
     uint32_t count = stream.read_u32();
-    stream.clear_ref_map();
+    stream.push_ref_map();
     for (uint32_t i = 0; i < count; ++i) {
         stream.add_ref_map(Coordinator::create_entity(), (int64_t)i);
     }
@@ -22,22 +22,19 @@ bool Scene::deserialize(memory::Stream& stream) {
         while (component_count--) {
             if (!Coordinator::add_component(entity, stream)) {
                 this->clean();
+                stream.pop_ref_map();
                 return false;
             }
         }
-
-        /*if (this->deserialize_entity(stream) == NullEntity || stream.failed()) {
-            this->clean();
-            return false;
-        }*/
     }
     
+    stream.pop_ref_map();
     return true;
 }
 
 Entity Scene::deserialize_tree(memory::Stream& stream) {
     uint32_t count = stream.read_u32();
-    stream.clear_ref_map();
+    stream.push_ref_map();
     for (uint32_t i = 0; i < count; ++i) {
         stream.add_ref_map(Coordinator::create_entity(), (int64_t)i);
     }
@@ -45,8 +42,7 @@ Entity Scene::deserialize_tree(memory::Stream& stream) {
     Entity root = NullEntity;
 
     for (uint32_t index = 0; index < count; ++index) {
-        Entity entity = (Entity)stream.ref_read_to_write((int64_t)index);
-
+        Entity entity = (Entity)stream.read_ref();
         uint32_t component_count = stream.read_u32();
         while (component_count--) {
             if (!Coordinator::add_component(entity, stream)) {
@@ -55,6 +51,7 @@ Entity Scene::deserialize_tree(memory::Stream& stream) {
                 for (uint32_t i = 0; i < count; ++i) {
                     Coordinator::destroy_entity((Entity)stream.ref_read_to_write(i));
                 }
+                stream.pop_ref_map();
                 return NullEntity;
             }
         }
@@ -66,6 +63,7 @@ Entity Scene::deserialize_tree(memory::Stream& stream) {
             for (uint32_t i = 0; i < count; ++i) {
                 Coordinator::destroy_entity((Entity)stream.ref_read_to_write(i));
             }
+            stream.pop_ref_map();
             return NullEntity;
         }
 
@@ -79,11 +77,13 @@ Entity Scene::deserialize_tree(memory::Stream& stream) {
                 for (uint32_t i = 0; i < count; ++i) {
                     Coordinator::destroy_entity((Entity)stream.ref_read_to_write(i));
                 }
+                stream.pop_ref_map();
                 return NullEntity;
             }
         }
     }
     
+    stream.pop_ref_map();
     return root;
 }
 

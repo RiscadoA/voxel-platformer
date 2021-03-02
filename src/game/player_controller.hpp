@@ -1,20 +1,26 @@
 #include <vpg/ecs/behaviour.hpp>
 
+#include <vpg/data/text.hpp>
+
 #include <vpg/input/mouse.hpp>
 #include <vpg/input/keyboard.hpp>
 
-struct PlayerController : public vpg::ecs::IBehaviour {
+using namespace vpg;
+
+struct PlayerController : public ecs::IBehaviour {
     static constexpr char TypeName[] = "PlayerController";
 
-    struct Info : public vpg::ecs::IBehaviour::Info {
-        virtual bool serialize(vpg::memory::Stream& stream) const override;
-        virtual bool deserialize(vpg::memory::Stream& stream) override;
+    struct Info : public IBehaviour::Info {
+        data::Handle<data::Text> scene;
+        glm::vec3 position;
+
+        virtual bool serialize(memory::Stream& stream) const override;
+        virtual bool deserialize(memory::Stream& stream) override;
     };
 
     PlayerController(vpg::ecs::Entity entity, const Info& info);
 
     virtual void update(float dt) override;
 
-    vpg::ecs::Entity entity;
-    float velocity;
+    ecs::Entity player;
 };

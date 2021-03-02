@@ -11,6 +11,6 @@ namespace vpg::ecs {
         void clean();
 
         bool deserialize(memory::Stream& stream);
-        Entity deserialize_tree(memory::Stream& stream);
+        static Entity deserialize_tree(memory::Stream& stream);
     };
 }

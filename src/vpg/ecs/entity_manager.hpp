@@ -25,7 +25,7 @@ namespace vpg::ecs {
         Signature get_signature(Entity entity);
 
     private:
-        std::queue<int> available;
+        std::queue<Entity> available;
         Signature signatures[MaxEntities];
         size_t count;
     };

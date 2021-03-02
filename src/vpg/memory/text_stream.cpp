@@ -3,6 +3,10 @@
 
 using namespace vpg::memory;
 
+static char is_whitespace(char c) {
+    return c == ' ' || c == '\n' || c == '\t' || c == '\v' || c == '\r' || c == '\0';
+}
+
 TextStream::TextStream(StreamBuffer* buf) {
     this->buf = buf;
     this->new_line = false;
@@ -173,7 +177,7 @@ uint64_t TextStream::read_u64() {
 
     // Skip whitespace
     auto c = this->get_char();
-    while (c == '\n' || c == ' ' || c == '\t' || c == '#') {
+    while ((is_whitespace(c) || c == '#') && c != '\0') {
         if (c == '#') {
             while (c != '\n') {
                 c = this->get_char();
@@ -183,7 +187,7 @@ uint64_t TextStream::read_u64() {
     }
 
     // Get number
-    while (c != '\n' && c != ' ' && c != '\t' && c != '\0') {
+    while (!is_whitespace(c)) {
         str += c;
         c = this->get_char();
     }
@@ -234,7 +238,7 @@ int64_t TextStream::read_i64() {
 
     // Skip whitespace
     auto c = this->get_char();
-    while (c == '\n' || c == ' ' || c == '\t' || c == '#') {
+    while ((is_whitespace(c) || c == '#') && c != '\0') {
         if (c == '#') {
             while (c != '\n') {
                 c = this->get_char();
@@ -244,7 +248,7 @@ int64_t TextStream::read_i64() {
     }
 
     // Get number
-    while (c != '\n' && c != ' ' && c != '\t' && c != '\0') {
+    while (!is_whitespace(c)) {
         str += c;
         c = this->get_char();
     }
@@ -269,7 +273,7 @@ double TextStream::read_f64() {
 
     // Skip whitespace
     auto c = this->get_char();
-    while (c == '\n' || c == ' ' || c == '\t' || c == '#') {
+    while ((is_whitespace(c) || c == '#') && c != '\0') {
         if (c == '#') {
             while (c != '\n') {
                 c = this->get_char();
@@ -279,7 +283,7 @@ double TextStream::read_f64() {
     }
 
     // Get number
-    while (c != '\n' && c != ' ' && c != '\t' && c != '\0') {
+    while (!is_whitespace(c)) {
         str += c;
         c = this->get_char();
     }
@@ -300,7 +304,7 @@ std::string TextStream::read_string() {
 
     // Skip whitespace
     auto c = this->get_char();
-    while (c == '\n' || c == ' ' || c == '\t' || c == '#') {
+    while ((is_whitespace(c) || c == '#') && c != '\0') {
         if (c == '#') {
             while (c != '\n') {
                 c = this->get_char();
@@ -332,14 +336,18 @@ std::string TextStream::read_string() {
     return str;
 }
 
-void TextStream::clear_ref_map_custom() {
-    this->str_to_index.clear();
+void TextStream::push_ref_map_custom() {
+    this->str_to_index.emplace();
+}
+
+void TextStream::pop_ref_map_custom() {
+    this->str_to_index.pop();
 }
 
 int64_t TextStream::read_ref_custom() {
     // Skip whitespace
     auto c = this->get_char();
-    while (c == '\n' || c == ' ' || c == '\t' || c == '#') {
+    while ((is_whitespace(c) || c == '#') && c != '\0') {
         if (c == '#') {
             while (c != '\n') {
                 c = this->get_char();
@@ -353,7 +361,7 @@ int64_t TextStream::read_ref_custom() {
 
         // Get identifier
         c = this->get_char();
-        while (c != ' ' && c != '\t' && c != '\n' && c != '\0') {
+        while (!is_whitespace(c)) {
             str += c;
             c = this->get_char();
         }
@@ -362,10 +370,10 @@ int64_t TextStream::read_ref_custom() {
             return -1;
         }
 
-        auto it = this->str_to_index.find(str);
-        if (it == this->str_to_index.end()) {
-            this->str_to_index[str] = (int64_t)this->str_to_index.size();
-            return (int64_t)this->str_to_index.size() - 1;
+        auto it = this->str_to_index.top().find(str);
+        if (it == this->str_to_index.top().end()) {
+            this->str_to_index.top()[str] = (int64_t)this->str_to_index.top().size();
+            return (int64_t)this->str_to_index.top().size() - 1;
         }
         else {
             return it->second;

@@ -35,15 +35,8 @@ $Null			# Parent
 -32.0 -0.5 -32.0 # Min
 +32.0 +0.5 +32.0 # Max
 
-$Character
-4				# Number of components
-"Transform"
-$Null			# Parent
-0.0 9.0 -15.0 	# Position
-0.5 0.5 0.5 	# Scale
-0.0 0.0 0.0 1.0 # Rotation
-"Renderable" "Model" "model.chr_knight"
-"Collider" "AABB"
--5.0 -5.0 -2.25 # Min
-+4.0 +2.5 +1.75 # Max
+$Player
+1				# Number of components
 "Behaviour" "PlayerController"
+"scene.player"  # Player path
+0.0 9.0 -15.0 	# Position
