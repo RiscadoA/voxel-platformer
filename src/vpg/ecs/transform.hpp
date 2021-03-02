@@ -52,7 +52,7 @@ namespace vpg::ecs {
         void set_dirty();
 
     private:
-        Entity parent, child, next;
+        Entity entity, parent, child, next;
         glm::vec3 position, global_position, scale;
         glm::vec3 forward, right, up;
         glm::quat rotation, global_rotation;

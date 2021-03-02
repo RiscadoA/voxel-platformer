@@ -40,6 +40,7 @@ bool Transform::Info::deserialize(memory::Stream& stream) {
 }
 
 Transform::Transform(Entity entity, const Info& create_info) {
+    this->entity = entity;
     this->parent = NullEntity;
     this->child = NullEntity;
     this->next = NullEntity;
@@ -86,7 +87,7 @@ void Transform::set_parent(Entity parent) {
     if (this->parent != NullEntity) {
         auto p_transform = Coordinator::get_component<Transform>(this->parent);
         this->next = p_transform->child;
-        p_transform->child = Coordinator::get_component_entity<Transform>(*this);
+        p_transform->child = this->entity;
     }
 
     this->set_dirty();

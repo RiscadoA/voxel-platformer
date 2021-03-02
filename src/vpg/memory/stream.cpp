@@ -21,7 +21,7 @@ void Stream::write_ref(int64_t ref) {
 }
 
 int64_t Stream::read_ref() {
-    int64_t ref = this->read_i64();
+    int64_t ref = this->read_ref_custom();
     if (ref == -1) {
         return -1;
     }
@@ -67,6 +67,7 @@ int64_t vpg::memory::Stream::ref_write_to_read(int64_t ref) {
 
 void Stream::clear_ref_map() {
     this->ref_map.clear();
+    this->clear_ref_map_custom();
 }
 
 void Stream::set_failed() {

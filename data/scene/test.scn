@@ -1,61 +1,49 @@
 # Test scene
 4
 
-# Camera
-3
-Transform
--1
-0.0 0.0 0.0 # Position
-1.0 1.0 1.0 # Scale
-0.0 0.0 0.0 1.0 # Rotation
-Camera
-70.0 0.1 1000.0 # FOV Near Far
-Behaviour
-CameraController
-
-# Floor
-3
-Transform
--1
-0.0 -1.0 0.0 # Position
-1.0 1.0 1.0 # Scale
-0.0 0.0 0.0 1.0 # Rotation
-Renderable
-Model
-model.floor
-Collider
-AABB
--32.0 -0.5 -32.0
-+32.0 +0.5 +32.0
-
-# Character
-4
-Transform
--1
-0.0 9.0 -15.0 # Position
-0.5 0.5 0.5 # Scale
-0.0 0.0 0.0 1.0 # Rotation
-Renderable
-Model
-model.chr_knight
-Collider
-AABB
--5.0 -5.0 -2.25
-+4.0 +2.5 +1.75
-Behaviour
-PlayerController
-
-# Light
+$Sun
 2
-Transform
--1
-0.0 1.0 0.0 # Position
-1.0 1.0 1.0 # Scale
+"Transform"
+$Null
+0.0 0.0 0.0 			# Position
+1.0 1.0 1.0 			# Scale
+-0.44 -0.02 -0.59 0.67	# Rotation
+"Light" "Directional"
+0.1 0.1 0.1 			# Ambient RGB
+0.7 0.7 0.7 			# Diffuse RGB
+
+$Camera
+3				# Number of components
+"Transform"
+$Null			# Parent
+0.0 0.0 0.0 	# Position
+1.0 1.0 1.0 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
-Light
-Point
-1.0 # Constant
-0.05 # Linear
-0.01 # Quadratic
-0.0 0.0 0.0 # Ambient RGB
-1.0 1.0 1.0 # Diffuse RGB
+"Camera"
+70.0 0.1 1000.0 # FOV Near Far
+"Behaviour" "CameraController"
+
+$Floor
+3				# Number of components
+"Transform"
+$Null			# Parent
+0.0 -1.0 0.0 	# Position
+1.0 1.0 1.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Renderable" "Model" "model.floor"
+"Collider" "AABB"
+-32.0 -0.5 -32.0 # Min
++32.0 +0.5 +32.0 # Max
+
+$Character
+4				# Number of components
+"Transform"
+$Null			# Parent
+0.0 9.0 -15.0 	# Position
+0.5 0.5 0.5 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Renderable" "Model" "model.chr_knight"
+"Collider" "AABB"
+-5.0 -5.0 -2.25 # Min
++4.0 +2.5 +1.75 # Max
+"Behaviour" "PlayerController"

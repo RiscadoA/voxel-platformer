@@ -11,8 +11,13 @@ bool Scene::deserialize(memory::Stream& stream) {
     this->clean();
 
     uint32_t count = stream.read_u32();
+    stream.clear_ref_map();
+    for (uint32_t i = 0; i < count; ++i) {
+        stream.add_ref_map(Coordinator::create_entity(), (int64_t)i);
+    }
+
     while (count--) {
-        Entity entity = Coordinator::create_entity();
+        Entity entity = (Entity)stream.read_ref();
         uint32_t component_count = stream.read_u32();
         while (component_count--) {
             if (!Coordinator::add_component(entity, stream)) {

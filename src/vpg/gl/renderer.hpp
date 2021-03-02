@@ -7,6 +7,7 @@
 #include <vpg/data/shader.hpp>
 
 #include <vpg/input/window.hpp>
+#include <vpg/input/keyboard.hpp>
 
 namespace vpg::gl {
     class Renderer {
@@ -25,6 +26,9 @@ namespace vpg::gl {
         void resize_callback(glm::ivec2 size);
         Listener resize_listener;
 
+        void debug_render_toggle_callback(input::Keyboard::Key key);
+        Listener debug_render_toggle_listener;
+
         CameraSystem* camera_sys;
         LightSystem* light_sys;
         RenderableSystem* renderable_sys;
@@ -33,6 +37,7 @@ namespace vpg::gl {
         
         glm::vec3 sky_color;
         bool wireframe;
+        bool debug_lights;
         bool debug_rendering;
         
         glm::ivec2 size;

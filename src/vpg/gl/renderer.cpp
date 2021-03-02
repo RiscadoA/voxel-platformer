@@ -27,7 +27,8 @@ vpg::gl::Renderer::Renderer(CameraSystem* camera_sys, LightSystem* light_sys, Re
     //this->sky_color = glm::vec3(0.8f, 0.8f, 0.8f);
     //this->sky_color = glm::vec3(0.0f, 0.0f, 0.0f);
     this->wireframe = false;
-    this->debug_rendering = true;
+    this->debug_lights = false;
+    this->debug_rendering = false;
 
     glGenVertexArrays(1, &this->screen_va);
 
@@ -42,10 +43,14 @@ vpg::gl::Renderer::Renderer(CameraSystem* camera_sys, LightSystem* light_sys, Re
     this->resize_listener = input::Window::FramebufferResized.add_listener(
         std::bind(&Renderer::resize_callback, this, std::placeholders::_1)
     );
+    this->debug_render_toggle_listener = input::Keyboard::Down.add_listener(
+        std::bind(&Renderer::debug_render_toggle_callback, this, std::placeholders::_1)
+    );
 }
 
 vpg::gl::Renderer::~Renderer() {
     input::Window::FramebufferResized.remove_listener(this->resize_listener);
+    input::Keyboard::Down.remove_listener(this->debug_render_toggle_listener);
 
     this->destroy_ssao();
     this->destroy_gbuffer();
@@ -78,7 +83,9 @@ void vpg::gl::Renderer::render(float dt) {
             lights[light_index].direction = camera.get_view() * glm::vec4(transform.get_global_rotation() * glm::vec3(0.0f, 0.0f, 1.0f), 0.0f);
             break;
         case Light::Type::Point:
-            gl::Debug::draw_sphere(transform.get_global_position(), 1.0f, lights[light_index].diffuse);
+            if (this->debug_lights) {
+                gl::Debug::draw_sphere(transform.get_global_position(), 1.0f, lights[light_index].diffuse);
+            }
             lights[light_index].position = camera.get_view() * glm::vec4(transform.get_global_position(), 1.0f);
             lights[light_index].direction.w = 1.0f;
             lights[light_index].constant = light.constant;
@@ -227,6 +234,21 @@ void vpg::gl::Renderer::resize_callback(glm::ivec2 size) {
     this->size = size;
     this->create_gbuffer();
     this->create_ssao();
+}
+
+void vpg::gl::Renderer::debug_render_toggle_callback(input::Keyboard::Key key) {
+    using Key = input::Keyboard::Key;
+    switch (key) {
+    case Key::F1:
+        this->wireframe = !this->wireframe;
+        break;
+    case Key::F2:
+        this->debug_rendering = !this->debug_rendering;
+        break;
+    case Key::F3:
+        this->debug_lights = !this->debug_lights;
+        break;
+    }
 }
 
 void vpg::gl::Renderer::create_gbuffer() {

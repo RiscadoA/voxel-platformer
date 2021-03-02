@@ -3,6 +3,8 @@
 #include <vpg/memory/stream.hpp>
 #include <vpg/memory/stream_buffer.hpp>
 
+#include <map>
+
 namespace vpg::memory {
     class TextStream : public Stream {
     public:
@@ -32,8 +34,14 @@ namespace vpg::memory {
         virtual double read_f64() override;
         virtual std::string read_string() override;
 
+    protected:
+        virtual void clear_ref_map_custom() override;
+        virtual int64_t read_ref_custom() override;
+
     private:
         char get_char();
+
+        std::map<std::string, int64_t> str_to_index;
 
         StreamBuffer* buf;
         bool new_line;

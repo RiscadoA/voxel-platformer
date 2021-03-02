@@ -100,7 +100,7 @@ void TextStream::write_f64(double val) {
 
 void TextStream::write_string(const std::string& in_str) {
     std::string str = in_str;
-    if (str.find('\n') != std::string::npos || (str.size() > 0 && (str[0] == '#' || str[0] == '"'))) {
+    if (str.find('\n') != std::string::npos || (str.size() > 0 && (str[0] == '#' || str[0] == '"' || str[0] == '$'))) {
         for (size_t i = 0; i < str.size(); ++i) {
             if (str[i] == '\"') {
                 str = str.substr(0, i) + "\\\"" + str.substr(i + 1);
@@ -330,6 +330,66 @@ std::string TextStream::read_string() {
     }
 
     return str;
+}
+
+void TextStream::clear_ref_map_custom() {
+    this->str_to_index.clear();
+}
+
+int64_t TextStream::read_ref_custom() {
+    // Skip whitespace
+    auto c = this->get_char();
+    while (c == '\n' || c == ' ' || c == '\t' || c == '#') {
+        if (c == '#') {
+            while (c != '\n') {
+                c = this->get_char();
+            }
+        }
+        c = this->get_char();
+    }
+
+    if (c == '$') {
+        std::string str;
+
+        // Get identifier
+        c = this->get_char();
+        while (c != ' ' && c != '\t' && c != '\n' && c != '\0') {
+            str += c;
+            c = this->get_char();
+        }
+
+        if (str == "Null") {
+            return -1;
+        }
+
+        auto it = this->str_to_index.find(str);
+        if (it == this->str_to_index.end()) {
+            this->str_to_index[str] = (int64_t)this->str_to_index.size();
+            return (int64_t)this->str_to_index.size() - 1;
+        }
+        else {
+            return it->second;
+        }
+    }
+    else {
+        std::string str;
+
+        // Get number
+        while (c != '\n' && c != ' ' && c != '\t' && c != '\0') {
+            str += c;
+            c = this->get_char();
+        }
+
+        try {
+            return std::stoll(str);
+        }
+        catch (std::invalid_argument) {
+            std::cerr << "vpg::memory::TextStream::read_ref_custom() failed:\n"
+                      << "Couldn't parse integer (std::invalid_argument thrown by std::stoll)\n";
+            this->set_failed();
+            return 0;
+        }
+    }
 }
 
 char vpg::memory::TextStream::get_char() {

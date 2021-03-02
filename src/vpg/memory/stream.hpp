@@ -44,6 +44,10 @@ namespace vpg::memory {
         void set_failed();
         bool failed() const;
 
+    protected:
+        inline virtual void clear_ref_map_custom() {}
+        inline virtual int64_t read_ref_custom() { return this->read_i64(); }
+
     private:
         bool failed_flag;
         std::unordered_map<int64_t, int64_t> ref_map;
