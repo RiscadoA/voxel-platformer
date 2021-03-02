@@ -28,8 +28,8 @@ model.floor
 2
 Transform
 -1
-0.0 9.0 11.0 # Position
-1.0 1.0 1.0 # Scale
+0.0 9.0 -15.0 # Position
+0.5 0.5 0.5 # Scale
 0.0 0.0 0.0 1.0 # Rotation
 Renderable
 Model

@@ -18,6 +18,8 @@
 #include <vpg/gl/renderer.hpp>
 #include <vpg/gl/debug.hpp>
 
+#include <vpg/physics/collider.hpp>
+
 #include <glm/glm.hpp>
 #include <gl/glew.h>
 #include <GLFW/glfw3.h>
@@ -117,6 +119,10 @@ int main(int argc, char** argv) {
     ecs::Coordinator::register_component<ecs::Behaviour>();
     auto behaviour_sys = ecs::Coordinator::register_system<ecs::BehaviourSystem>();
 
+    // Init physics
+    ecs::Coordinator::register_component<physics::Collider>();
+    auto collider_sys = ecs::Coordinator::register_system<physics::ColliderSystem>();
+
     // Init renderer
     ecs::Coordinator::register_component<gl::Camera>();
     ecs::Coordinator::register_component<gl::Light>();
@@ -139,6 +145,9 @@ int main(int argc, char** argv) {
     auto delta_time = 0.0f;
     while (!input::Window::should_close()) {
         input::Window::poll_events();
+
+        // Check collisions
+        collider_sys->update();
 
         // Update behaviours
         behaviour_sys->update(delta_time);

@@ -20,6 +20,13 @@ set (VPG_SOURCE_FILES
 	"src/vpg/memory/string_stream_buffer.hpp"
 	"src/vpg/memory/string_stream_buffer.cpp"
 
+	"src/vpg/input/window.hpp"
+	"src/vpg/input/window.cpp"
+	"src/vpg/input/mouse.hpp"
+	"src/vpg/input/mouse.cpp"
+	"src/vpg/input/keyboard.cpp"
+	"src/vpg/input/keyboard.hpp"
+
 	"src/vpg/gl/camera.hpp"
 	"src/vpg/gl/camera.cpp"
 	"src/vpg/gl/shader.hpp"
@@ -79,13 +86,14 @@ set (VPG_SOURCE_FILES
 	"src/vpg/ecs/transform.cpp"
 	"src/vpg/ecs/behaviour.hpp"
 	"src/vpg/ecs/behaviour.cpp"
-
-	"src/vpg/input/window.hpp"
-	"src/vpg/input/window.cpp"
-	"src/vpg/input/mouse.hpp"
-	"src/vpg/input/mouse.cpp"
-	"src/vpg/input/keyboard.cpp"
-	"src/vpg/input/keyboard.hpp"
+	
+	"src/vpg/physics/collider.hpp"
+	"src/vpg/physics/collider.cpp"
+	"src/vpg/physics/manifold.hpp"
+	"src/vpg/physics/sphere.hpp"
+	"src/vpg/physics/sphere.cpp"
+	"src/vpg/physics/aabb.hpp"
+	"src/vpg/physics/aabb.cpp"
 )
 
 set (GAME_SOURCE_FILES
