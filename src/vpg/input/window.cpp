@@ -41,6 +41,7 @@ bool Window::init() {
     }
 
     glfwMakeContextCurrent((GLFWwindow*)Window::handle);
+    glfwSwapInterval(1);
 
     glfwSetFramebufferSizeCallback((GLFWwindow*)Window::handle, &glfw_framebuffer_resized_callback);
 

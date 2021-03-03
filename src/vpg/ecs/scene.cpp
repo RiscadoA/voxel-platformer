@@ -71,7 +71,7 @@ Entity Scene::deserialize_tree(memory::Stream& stream) {
             if (root == NullEntity) {
                 root = entity;
             }
-            else {
+            else if (root != entity) {
                 std::cerr << "vpg::ecs::Scene::deserialize_tree() failed:\n"
                           << "A tree must have only one root\n";
                 for (uint32_t i = 0; i < count; ++i) {

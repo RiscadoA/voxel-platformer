@@ -61,7 +61,7 @@ static void glfw_scroll_callback(GLFWwindow* window, double x, double y) {
     }
     
     if (y != 0.0) {
-        Mouse::Scroll.fire(Mouse::Wheel::Vertical, x);
+        Mouse::Scroll.fire(Mouse::Wheel::Vertical, y);
     }
 }
 

@@ -13,7 +13,7 @@ $Null
 0.7 0.7 0.7 			# Diffuse RGB
 
 $Camera
-3				# Number of components
+2				# Number of components
 "Transform"
 $Null			# Parent
 0.0 0.0 0.0 	# Position
@@ -21,7 +21,13 @@ $Null			# Parent
 0.0 0.0 0.0 1.0 # Rotation
 "Camera"
 70.0 0.1 1000.0 # FOV Near Far
-"Behaviour" "CameraController"
+
+$Player
+1				# Number of components
+"Behaviour" "PlayerInstance"
+"scene.player"  # Player path
+0.0 0.0 -15.0 	# Position
+$Camera			# Camera used
 
 $Floor
 3				# Number of components
@@ -32,11 +38,5 @@ $Null			# Parent
 0.0 0.0 0.0 1.0 # Rotation
 "Renderable" "Model" "model.floor"
 "Collider" "AABB"
--32.0 -0.5 -32.0 # Min
-+32.0 +0.5 +32.0 # Max
-
-$Player
-1				# Number of components
-"Behaviour" "PlayerInstance"
-"scene.player"  # Player path
-0.0 9.0 -15.0 	# Position
+-128.0 -0.5 -128.0 # Min
++128.0 +0.5 +128.0 # Max

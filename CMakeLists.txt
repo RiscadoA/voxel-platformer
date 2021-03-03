@@ -98,8 +98,8 @@ set (VPG_SOURCE_FILES
 
 set (GAME_SOURCE_FILES
 	"src/game/load.cpp"
-	"src/game/camera_controller.hpp"
-	"src/game/camera_controller.cpp"
+	
+	
 	"src/game/player_controller.hpp"
 	"src/game/player_controller.cpp"
 	"src/game/player_instance.hpp"

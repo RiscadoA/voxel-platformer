@@ -1,4 +1,5 @@
 #include "player_instance.hpp"
+#include "player_controller.hpp"
 
 #include <vpg/input/mouse.hpp>
 #include <vpg/input/keyboard.hpp>
@@ -24,6 +25,7 @@ bool PlayerInstance::Info::serialize(memory::Stream& stream) const {
     stream.write_f32(this->position.x);
     stream.write_f32(this->position.y);
     stream.write_f32(this->position.z);
+    stream.write_ref(this->camera);
     return !stream.failed();
 }
 
@@ -32,6 +34,7 @@ bool PlayerInstance::Info::deserialize(memory::Stream& stream) {
     this->position.x = stream.read_f32();
     this->position.y = stream.read_f32();
     this->position.z = stream.read_f32();
+    this->camera = stream.read_ref();
     return !stream.failed() && this->scene.get_asset() != nullptr;
 }
 
@@ -42,6 +45,8 @@ PlayerInstance::PlayerInstance(ecs::Entity entity, const Info& info) {
 
     auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->player);
     transform->set_position(info.position);
+    auto controller = (PlayerController*)ecs::Coordinator::get_component<ecs::Behaviour>(this->player)->get();
+    controller->camera = info.camera;
 }
 
 PlayerInstance::~PlayerInstance() {

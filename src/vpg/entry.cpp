@@ -140,17 +140,25 @@ int main(int argc, char** argv) {
     }
 
     // TODO: Fix delta time
-    
     auto last_time = (float)glfwGetTime();
-    auto delta_time = 0.0f;
+    auto update_dt = 1.0f / (float)Config::get_integer("update_fps", 60);
+    auto lag = 0.0f;
     while (!input::Window::should_close()) {
+        // Calculate delta time
+        auto new_time = (float)glfwGetTime();
+        auto delta_time = new_time - last_time;
+        last_time = new_time;
+        lag += delta_time;
+
         input::Window::poll_events();
 
-        // Check collisions
-        collider_sys->update();
-
-        // Update behaviours
-        behaviour_sys->update(delta_time);
+        while (lag >= update_dt) {
+            // Check collisions
+            collider_sys->update();
+            // Update behaviours
+            behaviour_sys->update(update_dt);
+            lag -= update_dt;
+        }
 
         // Render here
         renderer->render(delta_time);
@@ -158,9 +166,7 @@ int main(int argc, char** argv) {
         input::Window::swap_buffers();
 
         // Calculate delta time
-        auto new_time = (float)glfwGetTime();
-        delta_time = new_time - last_time;
-        last_time = new_time;
+        
     }
 
     // Destroy renderer

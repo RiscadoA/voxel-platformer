@@ -13,6 +13,7 @@ struct PlayerInstance : public ecs::IBehaviour {
     struct Info : public IBehaviour::Info {
         data::Handle<data::Text> scene;
         glm::vec3 position;
+        ecs::Entity camera;
 
         virtual bool serialize(memory::Stream& stream) const override;
         virtual bool deserialize(memory::Stream& stream) override;

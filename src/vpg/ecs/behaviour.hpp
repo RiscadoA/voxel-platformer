@@ -59,6 +59,8 @@ namespace vpg::ecs {
 
         void update(float dt);
 
+        inline IBehaviour* get() { return this->behaviour; }
+
     private:
         std::string name;
         IBehaviour* behaviour;
