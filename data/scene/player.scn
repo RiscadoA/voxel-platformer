@@ -8,7 +8,7 @@ $Null			# Parent
 0.0 0.0 0.0 	# Position
 1.0 1.0 1.0 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
-"Collider" "AABB"
+"Collider" "Dynamic" "AABB"
 -2.5 2.75 -2.5 # Min
 +2.5 12.25 +2.5 # Max
 
@@ -19,9 +19,9 @@ $Controller		# Parent
 0.0 0.75 0.25 	# Position
 1.0 1.0 1.0 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
-"Collider" "AABB"
--2.5 -0.75 -2.5  # Min
-+2.5 +0.75 +2.5  # Max
+"Collider" "Dynamic" "AABB"
+-2.0 -0.65 -2.0  # Min
++2.0 -0.50 +2.0  # Max
 
 $Torso
 2				# Number of components
@@ -54,7 +54,7 @@ $LHand
 2				# Number of components
 "Transform"
 $Controller		# Parent
-3.5 6.0 1.0 	# Position
+3.5 5.0 1.0 	# Position
 0.5 0.5 0.5 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
 "Renderable" "Model" "model.player.lhand"
@@ -63,7 +63,7 @@ $RHand
 2				# Number of components
 "Transform"
 $Controller		# Parent
--3.5 6.0 1.0 	# Position
+-3.5 5.0 1.0 	# Position
 0.5 0.5 0.5 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
 "Renderable" "Model" "model.player.rhand"
@@ -73,3 +73,15 @@ $Controller
 "Behaviour" "PlayerController"
 $Torso $LFoot $RFoot $LHand $RHand
 $FeetCollider
+
+#$Light
+#2
+#"Transform"
+#$Controller		# Parent
+#0.0 14.0 0.0 	# Position
+#1.0 1.0 1.0 	# Scale
+#0.0 0.0 0.0 1.0 # Rotation
+#"Light" "Point"
+#0.3 0.01 0.01
+#0.0 0.0 0.0
+#0.8 0.8 0.8

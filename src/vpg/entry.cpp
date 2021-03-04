@@ -131,7 +131,6 @@ int main(int argc, char** argv) {
     auto light_sys = ecs::Coordinator::register_system<gl::LightSystem>();
     auto renderable_sys = ecs::Coordinator::register_system<gl::RenderableSystem>();
 
-    gl::Debug::init();
     auto renderer = new gl::Renderer(camera_sys, light_sys, renderable_sys);
 
     if (!load_game(scene)) {

@@ -98,12 +98,17 @@ set (VPG_SOURCE_FILES
 
 set (GAME_SOURCE_FILES
 	"src/game/load.cpp"
-	
+	"src/game/manager.hpp"
+	"src/game/manager.cpp"
 	
 	"src/game/player_controller.hpp"
 	"src/game/player_controller.cpp"
 	"src/game/player_instance.hpp"
 	"src/game/player_instance.cpp"
+	"src/game/map_controller.hpp"
+	"src/game/map_controller.cpp"
+	"src/game/platform.hpp"
+	"src/game/platform.cpp"
 )
 
 add_library(vpg ${VPG_SOURCE_FILES})

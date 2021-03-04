@@ -1,4 +1,5 @@
 #include "player_controller.hpp"
+#include "platform.hpp"
 
 #include <vpg/input/mouse.hpp>
 #include <vpg/input/keyboard.hpp>
@@ -52,6 +53,7 @@ PlayerController::PlayerController(ecs::Entity entity, const Info& info) {
     this->camera_x = glm::pi<float>() / 4.0f;
     this->camera_y = glm::pi<float>() / 4.0f;
     this->on_floor = false;
+    this->respawned = false;
 
     this->mouse_move_listener = Mouse::Move.add_listener(std::bind(
         &PlayerController::mouse_move_callback,
@@ -74,6 +76,14 @@ PlayerController::PlayerController(ecs::Entity entity, const Info& info) {
         std::placeholders::_1
     ));
 
+    collider = ecs::Coordinator::get_component<physics::Collider>(this->entity);
+    collider->on_collision.add_listener(std::bind(
+        &PlayerController::on_body_collision,
+        this,
+        std::placeholders::_1
+    ));
+
+    this->torso_pos = ecs::Coordinator::get_component<ecs::Transform>(this->torso)->get_position();
     this->lfoot_pos = ecs::Coordinator::get_component<ecs::Transform>(this->lfoot)->get_position();
     this->rfoot_pos = ecs::Coordinator::get_component<ecs::Transform>(this->rfoot)->get_position();
     this->lhand_pos = ecs::Coordinator::get_component<ecs::Transform>(this->lhand)->get_position();
@@ -94,8 +104,11 @@ PlayerController::~PlayerController() {
 }
 
 void PlayerController::update(float dt) {
+    this->respawned = false;
+
     auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
     auto camera = ecs::Coordinator::get_component<ecs::Transform>(this->camera);
+    auto torso = ecs::Coordinator::get_component<ecs::Transform>(this->torso);
     auto lfoot = ecs::Coordinator::get_component<ecs::Transform>(this->lfoot);
     auto rfoot = ecs::Coordinator::get_component<ecs::Transform>(this->rfoot);
     auto lhand = ecs::Coordinator::get_component<ecs::Transform>(this->lhand);
@@ -138,12 +151,13 @@ void PlayerController::update(float dt) {
     if (input.x == 0.0f && input.y == 0.0f) {
         this->time += dt * 5.0f;
         this->time = glm::clamp(this->time, 0.0f, 1.0f);
+        torso->set_position(glm::mix(torso->get_position(), this->torso_pos, time));
         lfoot->set_position(glm::mix(lfoot->get_position(), this->lfoot_pos, time));
         rfoot->set_position(glm::mix(rfoot->get_position(), this->rfoot_pos, time));
         lhand->set_position(glm::mix(lhand->get_position(), this->lhand_pos, time));
         rhand->set_position(glm::mix(rhand->get_position(), this->rhand_pos, time));
         if (this->on_floor) {
-            this->velocity = glm::mix(this->velocity, { 0.0f, 0.0f, 0.0f }, 30.0f * dt);
+            this->velocity = glm::mix(this->velocity, this->floor_velocity, 30.0f * dt);
         }
     }
     else {
@@ -159,16 +173,18 @@ void PlayerController::update(float dt) {
         if (this->on_floor) {
             this->time -= dt * speed;
             this->time = glm::mod(this->time + 2 * glm::pi<float>(), 2 * glm::pi<float>()) - 2 * glm::pi<float>();
-            glm::vec3 desired_lfoot = this->lfoot_pos + glm::vec3(0.0f, sin(this->time) + 1.0f, cos(this->time)) * 0.5f;
-            glm::vec3 desired_rfoot = this->rfoot_pos + glm::vec3(0.0f, sin(this->time + glm::pi<float>()) + 1.0f, cos(this->time + glm::pi<float>())) * 0.5f;
-            glm::vec3 desired_lhand = this->lhand_pos + glm::vec3(0.0f, sin(this->time + glm::pi<float>()) + 1.0f, cos(this->time + glm::pi<float>())) * 0.5f;
-            glm::vec3 desired_rhand = this->rhand_pos + glm::vec3(0.0f, sin(this->time) + 1.0f, cos(this->time)) * 0.5f;
+            glm::vec3 desired_torso = this->torso_pos + glm::vec3(0.0f, sin(this->time), 0.0f) * 0.5f;
+            glm::vec3 desired_lfoot = this->lfoot_pos + glm::vec3(0.0f, sin(this->time) + 1.0f, cos(this->time)) * 1.0f;
+            glm::vec3 desired_rfoot = this->rfoot_pos + glm::vec3(0.0f, sin(this->time + glm::pi<float>()) + 1.0f, cos(this->time + glm::pi<float>())) * 1.0f;
+            glm::vec3 desired_lhand = this->lhand_pos + glm::vec3(0.0f, sin(this->time + glm::pi<float>()) + 1.0f, cos(this->time + glm::pi<float>())) * 1.0f;
+            glm::vec3 desired_rhand = this->rhand_pos + glm::vec3(0.0f, sin(this->time) + 1.0f, cos(this->time)) * 1.0f;
+            torso->set_position(glm::mix(torso->get_position(), desired_torso, dt * 10.0f));
             lfoot->set_position(glm::mix(lfoot->get_position(), desired_lfoot, dt * 10.0f));
             rfoot->set_position(glm::mix(rfoot->get_position(), desired_rfoot, dt * 10.0f));
             lhand->set_position(glm::mix(lhand->get_position(), desired_lhand, dt * 10.0f));
             rhand->set_position(glm::mix(rhand->get_position(), desired_rhand, dt * 10.0f));
 
-            this->velocity = glm::mix(this->velocity, desired_dir * speed, 25.0f * dt);
+            this->velocity = glm::mix(this->velocity, this->floor_velocity + desired_dir * speed, 25.0f * dt);
         }
     }
 
@@ -181,12 +197,28 @@ void PlayerController::update(float dt) {
 }
 
 void PlayerController::on_feet_collision(const physics::Manifold& manifold) {
-    if (this->velocity.y < 0.0f && !this->on_floor) {
+    if (this->velocity.y < 0.0f && !this->on_floor && !this->respawned) {
+        this->floor_velocity = { 0.0f, 0.0f, 0.0f };
+
+        auto behaviour = ecs::Coordinator::get_component<ecs::Behaviour>(manifold.a == this->entity ? manifold.b : manifold.a);
+        if (behaviour != nullptr) {
+            auto platform = dynamic_cast<Platform*>(behaviour->get());
+            if (platform != nullptr) {
+                this->floor_velocity = platform->velocity;
+            }
+        }
+
         auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
         transform->translate(manifold.normal * manifold.penetration);
         this->velocity.y = 0.0f;
         this->on_floor = true;
     }
+}
+
+void PlayerController::on_body_collision(const physics::Manifold& manifold) {
+    auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
+    transform->translate(manifold.normal * manifold.penetration);
+    this->velocity -= manifold.normal * glm::dot(manifold.normal, this->velocity);
 }
 
 void PlayerController::mouse_move_callback(glm::vec2 mouse) {
@@ -203,4 +235,12 @@ void PlayerController::mouse_move_callback(glm::vec2 mouse) {
 void PlayerController::mouse_scroll_callback(Mouse::Wheel wheel, float delta) {
     this->camera_distance -= delta * 10.0f;
     this->camera_distance = glm::clamp(this->camera_distance, 15.0f, 100.0f);
+}
+
+void PlayerController::respawn(glm::vec3 position) {
+    auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
+    transform->set_position(position);
+    this->velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->on_floor = false;
+    this->respawned = true;
 }

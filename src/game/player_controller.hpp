@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vpg/ecs/behaviour.hpp>
 
 #include <vpg/data/text.hpp>
@@ -27,8 +29,10 @@ struct PlayerController : public ecs::IBehaviour {
 
     virtual void update(float dt) override;
     void on_feet_collision(const physics::Manifold& manifold);
+    void on_body_collision(const physics::Manifold& manifold);
     void mouse_move_callback(glm::vec2 mouse);
     void mouse_scroll_callback(input::Mouse::Wheel wheel, float delta);
+    void respawn(glm::vec3 position);
     vpg::Listener mouse_move_listener;
     vpg::Listener mouse_scroll_listener;
 
@@ -40,13 +44,15 @@ struct PlayerController : public ecs::IBehaviour {
     ecs::Entity feet_collider;
 
     float camera_distance, camera_x, camera_y;
-    bool on_floor;
+    bool on_floor, respawned;
 
     float time;
+    glm::vec3 torso_pos;
     glm::vec3 lfoot_pos, rfoot_pos;
     glm::vec3 lhand_pos, rhand_pos;
 
     glm::vec3 velocity;
+    glm::vec3 floor_velocity;
 
     glm::vec2 last_mouse;
     float sensitivity;

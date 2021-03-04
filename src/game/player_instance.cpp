@@ -1,5 +1,6 @@
 #include "player_instance.hpp"
 #include "player_controller.hpp"
+#include "manager.hpp"
 
 #include <vpg/input/mouse.hpp>
 #include <vpg/input/keyboard.hpp>
@@ -39,14 +40,13 @@ bool PlayerInstance::Info::deserialize(memory::Stream& stream) {
 }
 
 PlayerInstance::PlayerInstance(ecs::Entity entity, const Info& info) {
-    auto stream_buf = memory::StringStreamBuffer(info.scene->get_content());
-    auto stream = memory::TextStream(&stream_buf);
-    this->player = ecs::Scene::deserialize_tree(stream);
+    this->player = Manager::instance(info.scene);
+    this->spawn_position = info.position;
 
     auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->player);
     transform->set_position(info.position);
-    auto controller = (PlayerController*)ecs::Coordinator::get_component<ecs::Behaviour>(this->player)->get();
-    controller->camera = info.camera;
+    this->controller = (PlayerController*)ecs::Coordinator::get_component<ecs::Behaviour>(this->player)->get();
+    this->controller->camera = info.camera;
 }
 
 PlayerInstance::~PlayerInstance() {

@@ -24,7 +24,7 @@ vpg::gl::Renderer::Renderer(CameraSystem* camera_sys, LightSystem* light_sys, Re
     this->model_shader->get_shader().bind_uniform_buffer("Palette", 0);
 
     this->sky_color = glm::vec3(0.1f, 0.5f, 0.8f);
-    //this->sky_color = glm::vec3(0.8f, 0.8f, 0.8f);
+    //this->sky_color = glm::vec3(1.0f, 1.0f, 1.0f);
     //this->sky_color = glm::vec3(0.0f, 0.0f, 0.0f);
     this->wireframe = false;
     this->debug_lights = false;
@@ -244,6 +244,12 @@ void vpg::gl::Renderer::debug_render_toggle_callback(input::Keyboard::Key key) {
         break;
     case Key::F2:
         this->debug_rendering = !this->debug_rendering;
+        if (this->debug_rendering) {
+            Debug::init();
+        }
+        else {
+            Debug::terminate();
+        }
         break;
     case Key::F3:
         this->debug_lights = !this->debug_lights;

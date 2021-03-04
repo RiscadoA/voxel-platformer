@@ -23,6 +23,7 @@ namespace vpg::physics {
 
         struct Info {
             Type type;
+            bool is_static;
             Sphere sphere;
             AABB aabb;
 
@@ -37,6 +38,7 @@ namespace vpg::physics {
         Event<const Manifold&> on_collision;
         
         Type type;
+        bool is_static;
         Sphere sphere;
         AABB aabb;
     };

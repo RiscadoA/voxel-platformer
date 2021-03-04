@@ -7,14 +7,14 @@ using namespace vpg;
 using namespace vpg::physics;
 
 bool Collider::Info::serialize(memory::Stream& stream) const {
+    stream.write_comment("Collider", 0);
+    stream.write_string(this->is_static ? "Static" : "Dynamic");
     if (this->type == Type::Sphere) {
-        stream.write_comment("Sphere Collider", 0);
         stream.write_string("Sphere");
         stream.write_comment("Radius", 1);
         stream.write_f32(this->sphere.radius);
     }
     else if (this->type == Type::AABB) {
-        stream.write_comment("AABB Collider", 0);
         stream.write_string("AABB");
         stream.write_comment("Min", 1);
         stream.write_f32(this->aabb.min.x);
@@ -35,7 +35,20 @@ bool Collider::Info::serialize(memory::Stream& stream) const {
 }
 
 bool Collider::Info::deserialize(memory::Stream& stream) {
+    std::string is_static = stream.read_string();
     std::string str_type = stream.read_string();
+    if (is_static == "Static") {
+        this->is_static = true;
+    }
+    else if (is_static == "Dynamic") {
+        this->is_static = false;
+    }
+    else {
+        std::cerr << "vpg::physics::Collider::Info::deserialize() failed:\n"
+                  << "Expected 'Static' or 'Dynamic', found '" << is_static << "'\n";
+        return false;
+    }
+
     if (str_type == "Sphere") {
         this->type = Type::Sphere;
         this->sphere.radius = stream.read_f32();
@@ -60,6 +73,7 @@ bool Collider::Info::deserialize(memory::Stream& stream) {
 
 Collider::Collider(ecs::Entity entity, const Info& create_info) {
     this->type = create_info.type;
+    this->is_static = create_info.is_static;
     this->sphere = create_info.sphere;
     this->aabb = create_info.aabb;
 }
@@ -89,12 +103,20 @@ void ColliderSystem::update() {
             auto scale = (col_a->aabb.max - col_a->aabb.min) / 2.0f;
             gl::Debug::draw_box(transform_a->get_global_position() + center, scale, { 1.0f, 1.0f, 1.0f, 1.0f });
             break;
-        }  
+        }
         }
 
-        for (auto it_b = ++it_a; it_b != this->entities.end(); ++it_b) {
+        for (auto it_b = it_a++; it_b != this->entities.end(); ++it_b) {
             auto b = *it_b;
+            if (a == b) {
+                continue;
+            }
+
             auto col_b = ecs::Coordinator::get_component<Collider>(b);
+
+            if (col_a->is_static && col_b->is_static) {
+                continue;
+            }
 
             manifold.a = a;
             manifold.b = b;
@@ -118,8 +140,10 @@ void ColliderSystem::update() {
             }
 
             if (collided) {
-                col_a->on_collision.fire(manifold);
                 col_b->on_collision.fire(manifold);
+                std::swap(manifold.a, manifold.b);
+                manifold.normal = -manifold.normal;
+                col_a->on_collision.fire(manifold);
                 this->manifolds.push_back(manifold);
             }
         }

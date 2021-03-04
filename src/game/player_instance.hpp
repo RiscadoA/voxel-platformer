@@ -1,9 +1,13 @@
+#pragma once
+
 #include <vpg/ecs/behaviour.hpp>
 
 #include <vpg/data/text.hpp>
 
 #include <vpg/input/mouse.hpp>
 #include <vpg/input/keyboard.hpp>
+
+#include "player_controller.hpp"
 
 using namespace vpg;
 
@@ -22,5 +26,7 @@ struct PlayerInstance : public ecs::IBehaviour {
     PlayerInstance(vpg::ecs::Entity entity, const Info& info);
     ~PlayerInstance();
 
+    PlayerController* controller;
     ecs::Entity player;
+    glm::vec3 spawn_position;
 };

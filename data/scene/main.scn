@@ -1,5 +1,5 @@
 # Main scene
-4
+5
 
 $Sun
 2
@@ -20,23 +20,29 @@ $Null			# Parent
 1.0 1.0 1.0 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
 "Camera"
-70.0 0.1 1000.0 # FOV Near Far
+70.0 0.1 400.0  # FOV Near Far
 
 $Player
 1				# Number of components
 "Behaviour" "PlayerInstance"
 "scene.player"  # Player path
-0.0 0.0 -15.0 	# Position
+0.0 10.0 0.0 	# Position
 $Camera			# Camera used
 
-$Floor
-3				# Number of components
+$KillArea
+2
 "Transform"
 $Null			# Parent
-0.0 -1.0 0.0 	# Position
+0.0 0.0 0.0 	# Position
 1.0 1.0 1.0 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
-"Renderable" "Model" "model.floor"
-"Collider" "AABB"
--128.0 -0.5 -128.0 # Min
-+128.0 +0.5 +128.0 # Max
+"Collider" "Static" "AABB"
+-5000.0 -210.0 -5000.0
++5000.0 -200.0 +5000.0
+
+$Map
+1				 # Number of components
+"Behaviour" "MapController"
+$Player $KillArea
+"scene.entry"
+"scene.platform"
