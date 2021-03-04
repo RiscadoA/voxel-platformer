@@ -107,8 +107,13 @@ set (GAME_SOURCE_FILES
 	"src/game/player_instance.cpp"
 	"src/game/map_controller.hpp"
 	"src/game/map_controller.cpp"
+
 	"src/game/platform.hpp"
 	"src/game/platform.cpp"
+	"src/game/turret.hpp"
+	"src/game/turret.cpp"
+	"src/game/bullet.hpp"
+	"src/game/bullet.cpp"
 )
 
 add_library(vpg ${VPG_SOURCE_FILES})

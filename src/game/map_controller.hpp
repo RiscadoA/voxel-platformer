@@ -17,7 +17,7 @@ struct MapController : public ecs::IBehaviour {
     struct Info : public IBehaviour::Info {
         ecs::Entity player, kill_area;
         data::Handle<data::Text> entry, exit, tutorial;
-        data::Handle<data::Text> platform;
+        data::Handle<data::Text> platform, turret;
         data::Handle<data::Text> grass_16;
 
         virtual bool serialize(memory::Stream& stream) const override;
@@ -31,7 +31,8 @@ struct MapController : public ecs::IBehaviour {
     void on_exit_area_collision(const physics::Manifold& manifold);
     void gen_level();
 
-    data::Handle<data::Text> tutorial, platform, grass_16;
+    data::Handle<data::Text> tutorial, platform, turret;
+    data::Handle<data::Text> grass_16;
 
     ecs::Entity kill_area;
     ecs::Entity entry, exit;

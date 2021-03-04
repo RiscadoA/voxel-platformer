@@ -1,6 +1,7 @@
 #include "map_controller.hpp"
 #include "manager.hpp"
 #include "platform.hpp"
+#include "turret.hpp"
 
 #include <vpg/ecs/transform.hpp>
 
@@ -11,6 +12,7 @@ bool MapController::Info::serialize(memory::Stream& stream) const {
     stream.write_string(this->exit.get_asset()->get_id());
     stream.write_string(this->tutorial.get_asset()->get_id());
     stream.write_string(this->platform.get_asset()->get_id());
+    stream.write_string(this->turret.get_asset()->get_id());
     stream.write_string(this->grass_16.get_asset()->get_id());
 
     return !stream.failed();
@@ -23,6 +25,7 @@ bool MapController::Info::deserialize(memory::Stream& stream) {
     this->exit = data::Manager::load<data::Text>(stream.read_string());
     this->tutorial = data::Manager::load<data::Text>(stream.read_string());
     this->platform = data::Manager::load<data::Text>(stream.read_string());
+    this->turret = data::Manager::load<data::Text>(stream.read_string());
     this->grass_16 = data::Manager::load<data::Text>(stream.read_string());
  
     return !stream.failed();
@@ -31,6 +34,7 @@ bool MapController::Info::deserialize(memory::Stream& stream) {
 MapController::MapController(vpg::ecs::Entity entity, const Info& info) {
     this->tutorial = info.tutorial;
     this->platform = info.platform;
+    this->turret = info.turret;
     this->grass_16 = info.grass_16;
 
     this->kill_area = info.kill_area;
@@ -96,7 +100,7 @@ void MapController::gen_level() {
         exit->set_position(glm::vec3(0.0f, 0.0f, -100.0f));
     }
     else if (this->level_num == 1) {
-        ecs::Entity e = Manager::instance(this->platform);
+        auto e = Manager::instance(this->platform);
         auto platform = (Platform*)ecs::Coordinator::get_component<ecs::Behaviour>(e)->get();
         platform->from = glm::vec3(25.0f, 0.0f, 0.0f);
         platform->to = glm::vec3(-150.0f, 0.0f, 0.0f);
@@ -126,7 +130,15 @@ void MapController::gen_level() {
         exit->set_position(glm::vec3(0.0f, 0.0f, -160.0f));
     }
     else if (this->level_num == 2) {
+        auto e = Manager::instance(this->turret);
+        auto turret = (Turret*)ecs::Coordinator::get_component<ecs::Behaviour>(e)->get();
+        auto transform = ecs::Coordinator::get_component<ecs::Transform>(e);
+        turret->delay = 3.0f;
+        turret->speed = 30.0f;
+        transform->set_position(glm::vec3(0.0f, 10.0f, -40.0f));
+        this->level.push_back(e);
 
+        exit->set_position(glm::vec3(0.0f, 0.0f, -160.0f));
     }
 
     this->player->controller->respawn(this->player->spawn_position);

@@ -1,5 +1,6 @@
 #include "player_controller.hpp"
 #include "platform.hpp"
+#include "bullet.hpp"
 
 #include <vpg/input/mouse.hpp>
 #include <vpg/input/keyboard.hpp>
@@ -199,25 +200,54 @@ void PlayerController::on_feet_collision(const physics::Manifold& manifold) {
     if (this->velocity.y < 0.0f && !this->on_floor && !this->respawned) {
         this->floor_velocity = { 0.0f, 0.0f, 0.0f };
 
+        bool was_bullet = false;
         auto behaviour = ecs::Coordinator::get_component<ecs::Behaviour>(manifold.a == this->entity ? manifold.b : manifold.a);
         if (behaviour != nullptr) {
             auto platform = dynamic_cast<Platform*>(behaviour->get());
             if (platform != nullptr) {
                 this->floor_velocity = platform->velocity;
             }
+
+            auto bullet = dynamic_cast<Bullet*>(behaviour->get());
+            if (bullet != nullptr) {
+                this->velocity += manifold.normal * bullet->speed * 2.0f;
+                glm::vec3 t = { 0.0f, 0.0f, 0.0f };
+                t.x = (float)(rand() % 100) / 50.0f - 1.0f;
+                t.z = (float)(rand() % 100) / 50.0f - 1.0f;
+                t = glm::normalize(t);
+                this->velocity += t * bullet->speed * 2.0f;
+                was_bullet = true;
+            }
         }
 
         auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
         transform->translate(manifold.normal * manifold.penetration);
-        this->velocity.y = 0.0f;
-        this->on_floor = true;
+
+        if (!was_bullet) {
+            this->velocity.y = 0.0f;
+            this->on_floor = true;
+        }
     }
 }
 
 void PlayerController::on_body_collision(const physics::Manifold& manifold) {
     auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
     transform->translate(manifold.normal * manifold.penetration);
-    this->velocity -= manifold.normal * glm::dot(manifold.normal, this->velocity);
+
+    auto behaviour = ecs::Coordinator::get_component<ecs::Behaviour>(manifold.a == this->entity ? manifold.b : manifold.a);
+    bool was_bullet = false;
+    if (behaviour != nullptr) {
+        auto bullet = dynamic_cast<Bullet*>(behaviour->get());
+        if (bullet != nullptr) {
+            this->velocity += manifold.normal * bullet->speed * 2.0f;
+            this->velocity.y += bullet->speed * 2.0f;
+            was_bullet = true;
+        }
+    }
+
+    if (!was_bullet) {
+        this->velocity -= manifold.normal * glm::dot(manifold.normal, this->velocity);
+    }
 }
 
 void PlayerController::mouse_move_callback(glm::vec2 mouse) {
