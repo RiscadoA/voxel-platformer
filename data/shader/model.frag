@@ -2,7 +2,7 @@
 
 struct Material {
    vec3 color;
-   float _padding;
+   float emissive;
 };
 
 layout (std140) uniform Palette {
@@ -13,13 +13,14 @@ in vec3 frag_position;
 in vec3 frag_normal;
 flat in uint frag_material;
 
-layout (location = 0) out vec3 albedo;
+layout (location = 0) out vec4 albedo;
 layout (location = 1) out vec3 position;
 layout (location = 2) out vec3 normal;
 
 void main() {
 	Material mat = palette[frag_material];
-	albedo = mat.color;
+	albedo.rgb = mat.color;
+	albedo.a = mat.emissive;
 	position = frag_position;
 	normal = normalize(frag_normal);
 }

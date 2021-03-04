@@ -5,7 +5,9 @@
 #include <iostream>
 
 void* vpg::data::Model::load(Asset* asset) {
-    std::string path = Config::get_string("data.folder", "./data/") + asset->get_args();
+    std::string path = Config::get_string("data.folder", "./data/") + asset->get_args().substr(0, asset->get_args().find(' '));
+    bool emissive = asset->get_args().substr(asset->get_args().find(' ') + 1) == "emissive";
+
     std::ifstream ifs(path);
     if (!ifs.is_open()) {
         std::cerr << "vpg::data::Model::load() failed:\n"
@@ -22,7 +24,7 @@ void* vpg::data::Model::load(Asset* asset) {
         return nullptr;
     }
 
-    if (!parse_qb(model->matrix, model->palette, ifs)) {
+    if (!parse_qb(model->matrix, model->palette, ifs, emissive)) {
         std::cerr << "vpg::data::Model::load() failed:\n"
                   << "Couldn't parse Qubicle file\n";
         delete model;

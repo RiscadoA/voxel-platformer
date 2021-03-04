@@ -6,7 +6,7 @@
 using namespace vpg;
 using namespace vpg::data;
 
-bool vpg::data::parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream& ifs) {
+bool vpg::data::parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream& ifs, bool emissive) {
     uint8_t version[4];
     uint32_t color_format, z_axis_orientation, compressed, visibility_mask_encoded, num_matrices;
 
@@ -94,6 +94,7 @@ bool vpg::data::parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream
                         palette[mat_id].color.r = float(color[0]) / 255.0f;
                         palette[mat_id].color.g = float(color[1]) / 255.0f;
                         palette[mat_id].color.b = float(color[2]) / 255.0f;
+                        palette[mat_id].emissive = emissive ? 1.0f : 0.0f;
                     }
 
                     matrix.voxels[x * size_y * size_z + y * size_z + z] = mat_id + 1;

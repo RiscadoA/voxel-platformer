@@ -15,7 +15,7 @@ namespace vpg::gl {
 
     struct Material {
         glm::vec3 color;
-        float _padding;
+        float emissive;
     };
     
     class Palette {

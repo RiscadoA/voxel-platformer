@@ -133,8 +133,8 @@ void MapController::gen_level() {
         auto e = Manager::instance(this->turret);
         auto turret = (Turret*)ecs::Coordinator::get_component<ecs::Behaviour>(e)->get();
         auto transform = ecs::Coordinator::get_component<ecs::Transform>(e);
-        turret->delay = 3.0f;
-        turret->speed = 30.0f;
+        turret->delay = 5.0f;
+        turret->speed = 50.0f;
         transform->set_position(glm::vec3(0.0f, 10.0f, -40.0f));
         this->level.push_back(e);
 

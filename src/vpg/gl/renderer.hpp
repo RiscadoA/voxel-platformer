@@ -35,7 +35,6 @@ namespace vpg::gl {
 
         data::Handle<data::Shader> model_shader;
         
-        glm::vec3 sky_color;
         bool wireframe;
         bool debug_lights;
         bool debug_rendering;

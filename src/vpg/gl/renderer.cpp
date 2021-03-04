@@ -23,9 +23,6 @@ vpg::gl::Renderer::Renderer(CameraSystem* camera_sys, LightSystem* light_sys, Re
     this->model_shader = data::Manager::load<data::Shader>("shader.model");
     this->model_shader->get_shader().bind_uniform_buffer("Palette", 0);
 
-    this->sky_color = glm::vec3(0.1f, 0.5f, 0.8f);
-    //this->sky_color = glm::vec3(1.0f, 1.0f, 1.0f);
-    //this->sky_color = glm::vec3(0.0f, 0.0f, 0.0f);
     this->wireframe = false;
     this->debug_lights = false;
     this->debug_rendering = false;
@@ -118,14 +115,9 @@ void vpg::gl::Renderer::render(float dt) {
 
     // Clear framebuffer
     GLuint draw_buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-    glDrawBuffers(1, &draw_buffers[0]);
-    glClearColor(sky_color.r, sky_color.g, sky_color.b, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glDrawBuffers(2, &draw_buffers[1]);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
     glDrawBuffers(3, &draw_buffers[0]);
-    glClear(GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     auto model_loc = this->model_shader->get_shader().get_uniform_location("model");
     auto view_loc = this->model_shader->get_shader().get_uniform_location("view");
@@ -211,7 +203,8 @@ void vpg::gl::Renderer::render(float dt) {
     glUniform1i(lighting_shader.get_uniform_location("position_tex"), 1);
     glUniform1i(lighting_shader.get_uniform_location("normal_tex"), 2);
     glUniform1i(lighting_shader.get_uniform_location("ssao_tex"), 3);
-    glUniform3f(lighting_shader.get_uniform_location("sky_color"), this->sky_color.r, this->sky_color.g, this->sky_color.b);
+    glUniformMatrix4fv(lighting_shader.get_uniform_location("proj"), 1, GL_FALSE, &camera.get_proj()[0][0]);
+    glUniformMatrix4fv(lighting_shader.get_uniform_location("view"), 1, GL_FALSE, &camera.get_view()[0][0]);
     glUniform1f(lighting_shader.get_uniform_location("z_far"), camera.get_z_far());
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, this->lights_ubo, 0, sizeof(Light) * LIGHT_COUNT);
     glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -264,7 +257,7 @@ void vpg::gl::Renderer::create_gbuffer() {
 
     glGenTextures(1, &this->gbuffer.albedo);
     glBindTexture(GL_TEXTURE_2D, this->gbuffer.albedo);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->size.x, this->size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this->size.x, this->size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->gbuffer.albedo, 0);

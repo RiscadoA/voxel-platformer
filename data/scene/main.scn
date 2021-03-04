@@ -9,7 +9,7 @@ $Null
 1.0 1.0 1.0 			# Scale
 -0.44 -0.02 -0.59 0.67	# Rotation
 "Light" "Directional"
-0.1 0.1 0.1 			# Ambient RGB
+0.3 0.3 0.3 			# Ambient RGB
 0.7 0.7 0.7 			# Diffuse RGB
 
 $Camera

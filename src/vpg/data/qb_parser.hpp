@@ -7,5 +7,5 @@
 #include <fstream>
 
 namespace vpg::data {
-    bool parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream& ifs);
+    bool parse_qb(gl::Matrix& matrix, gl::Palette& palette, std::ifstream& ifs, bool emissive);
 }
