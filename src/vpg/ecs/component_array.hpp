@@ -77,12 +77,17 @@ namespace vpg::ecs {
 		this->count -= 1;
 		size_t last = this->count;
 		this->components[index].~T();
-		new (&this->components[index]) T(std::move(this->components[last]));
-		this->components[last].~T();
-		auto last_entity = this->index_to_entity[last];
-		this->index_to_entity.erase(last);
-		this->entity_to_index[last_entity] = index;
-		this->index_to_entity[index] = last_entity;
+		if (last != index) {
+			new (&this->components[index]) T(std::move(this->components[last]));
+			this->components[last].~T();
+			auto last_entity = this->index_to_entity[last];
+			this->index_to_entity.erase(last);
+			this->entity_to_index[last_entity] = index;
+			this->index_to_entity[index] = last_entity;
+		}
+		else {
+			this->index_to_entity.erase(index);
+		}
 	}
 
 	template<typename T>

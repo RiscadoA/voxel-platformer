@@ -20,4 +20,4 @@ $Base			# Parent
 -30.0 10.0 0.0 # Position
 0.5 0.5 0.5 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
-"Renderable" "Model" "model.exit"
+"Renderable" "Model" "model.sign"

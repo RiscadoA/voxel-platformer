@@ -94,13 +94,6 @@ PlayerController::~PlayerController() {
     Mouse::Move.remove_listener(this->mouse_move_listener);
     Mouse::Move.remove_listener(this->mouse_scroll_listener);
     Mouse::set_mode(Mouse::Mode::Normal);
-
-    ecs::Coordinator::destroy_entity(this->torso);
-    ecs::Coordinator::destroy_entity(this->lfoot);
-    ecs::Coordinator::destroy_entity(this->rfoot);
-    ecs::Coordinator::destroy_entity(this->lhand);
-    ecs::Coordinator::destroy_entity(this->rhand);
-    ecs::Coordinator::destroy_entity(this->feet_collider);
 }
 
 void PlayerController::update(float dt) {
@@ -129,6 +122,7 @@ void PlayerController::update(float dt) {
     glm::vec2 input = { 0.0f, 0.0f };
 
     float speed = 30.0f;
+    const float jump_change_force = 30.0f;
 
     if (Keyboard::is_key_pressed(Key::LShift)) {
         speed = 50.0f;
@@ -186,10 +180,15 @@ void PlayerController::update(float dt) {
 
             this->velocity = glm::mix(this->velocity, this->floor_velocity + desired_dir * speed, 25.0f * dt);
         }
+        else {
+            if (glm::dot(this->velocity, desired_dir) < 0.0f) {
+                this->velocity += desired_dir * jump_change_force * dt;
+            }
+        }
     }
 
     if (Keyboard::is_key_pressed(Key::Space) && this->on_floor) {
-        this->velocity.y = 70.0f;
+        this->velocity.y = 50.0f;
     }
 
     this->on_floor = false;

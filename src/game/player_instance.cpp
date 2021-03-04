@@ -50,5 +50,5 @@ PlayerInstance::PlayerInstance(ecs::Entity entity, const Info& info) {
 }
 
 PlayerInstance::~PlayerInstance() {
-    ecs::Coordinator::destroy_entity(this->player);
+    Manager::destroy_instance(this->player);
 }

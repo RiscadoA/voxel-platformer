@@ -1,0 +1,27 @@
+# Island with tree
+2
+
+$Root
+3
+"Transform"
+$Null			# Parent
+0.0 0.0 0.0 	# Position
+2.0 2.0 2.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Collider" "Static" "AABB"
+-16.0 -4.0 -16.0 # Min
++16.0 +4.0 +16.0 # Max
+"Renderable" "Model" "model.grass.16"
+
+$Tree
+3
+"Transform"
+$Root			# Parent
+-5.0 8.5 -3.0 	# Position
+1.0 1.0 1.0 	# Scale
+0.0 1.0 0.0 1.0 # Rotation
+"Collider" "Static" "AABB"
+-3.0 -13.0 -3.0 # Min
++3.0 +13.0 +3.0 # Max
+"Renderable" "Model" "model.tree.1"
+

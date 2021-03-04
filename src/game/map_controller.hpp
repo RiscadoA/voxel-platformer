@@ -7,6 +7,8 @@
 #include "player_instance.hpp"
 #include "player_controller.hpp"
 
+#include <vector>
+
 using namespace vpg;
 
 struct MapController : public ecs::IBehaviour {
@@ -14,8 +16,9 @@ struct MapController : public ecs::IBehaviour {
 
     struct Info : public IBehaviour::Info {
         ecs::Entity player, kill_area;
-        data::Handle<data::Text> entry;
+        data::Handle<data::Text> entry, exit;
         data::Handle<data::Text> platform;
+        data::Handle<data::Text> grass_16;
 
         virtual bool serialize(memory::Stream& stream) const override;
         virtual bool deserialize(memory::Stream& stream) override;
@@ -25,8 +28,14 @@ struct MapController : public ecs::IBehaviour {
     ~MapController();
 
     void on_kill_area_collision(const physics::Manifold& manifold);
+    void on_exit_area_collision(const physics::Manifold& manifold);
+    void gen_level();
+
+    data::Handle<data::Text> platform, grass_16;
 
     ecs::Entity kill_area;
-    ecs::Entity entry, platform;
+    ecs::Entity entry, exit;
+    std::vector<ecs::Entity> level;
     PlayerInstance* player;
+    int level_num;
 };
