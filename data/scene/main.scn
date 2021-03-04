@@ -44,6 +44,6 @@ $Map
 1				# Number of components
 "Behaviour" "MapController"
 $Player $KillArea
-"scene.entry" "scene.exit"
+"scene.entry" "scene.exit" "scene.tutorial"
 "scene.platform"
 "scene.grass.1.16"
