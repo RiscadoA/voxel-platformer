@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <unordered_map>
+#include <cstdint>
 
 namespace vpg {
     using Listener = uint32_t;

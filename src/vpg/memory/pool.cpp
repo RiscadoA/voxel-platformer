@@ -1,6 +1,7 @@
 #include <vpg/memory/pool.hpp>
 
 #include <cstring>
+#include <cstdlib>
 
 using namespace vpg::memory;
 

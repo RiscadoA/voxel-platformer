@@ -44,6 +44,7 @@ Transform::Transform(Entity entity, const Info& create_info) {
     this->parent = NullEntity;
     this->child = NullEntity;
     this->next = NullEntity;
+    this->dirty = true;
     this->set_parent(create_info.parent);
     this->set_position(create_info.position);
     this->set_scale(create_info.scale);

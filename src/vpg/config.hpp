@@ -12,10 +12,10 @@ namespace vpg {
 
 		static bool load(int argc, char** argv);
 
-		static bool get_boolean(const std::string& key, bool default);
-		static int64_t get_integer(const std::string& key, int64_t default);
-		static double get_float(const std::string& key, double default);
-		static std::string get_string(const std::string& key, const std::string& default);
+		static bool get_boolean(const std::string& key, bool def);
+		static int64_t get_integer(const std::string& key, int64_t def);
+		static double get_float(const std::string& key, double def);
+		static std::string get_string(const std::string& key, const std::string& def);
 
 		static void set_boolean(const std::string& key, bool value);
 		static void set_integer(const std::string& key, int64_t value);

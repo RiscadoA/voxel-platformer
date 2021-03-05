@@ -2,7 +2,7 @@
 #include <vpg/ecs/transform.hpp>
 #include <vpg/gl/debug.hpp>
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <random>
 
 #define LIGHT_COUNT 64

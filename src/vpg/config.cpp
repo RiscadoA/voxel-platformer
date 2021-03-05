@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 using namespace vpg;
 
@@ -13,7 +14,7 @@ bool Config::load(int argc, char** argv) {
 
 	// Parse variables from command-line arguments
 	for (int i = 1; i < argc; ++i) {
-		if (std::strcmp(argv[i], "-c") == 0) {
+		if (strcmp(argv[i], "-c") == 0) {
 			if (i + 1 >= argc) {
 				std::cerr << "vpg::Config::load() failed:" << std::endl;
 				std::cerr << "Command-line arguments parsing failed:" << std::endl;
@@ -113,11 +114,11 @@ bool Config::load(int argc, char** argv) {
 	}
 }
 
-bool vpg::Config::get_boolean(const std::string& key, bool default) {
+bool vpg::Config::get_boolean(const std::string& key, bool def) {
 	std::lock_guard guard(Config::mutex);
 
 	if (Config::variables.find(key) == Config::variables.end()) {
-		Config::variables[key] = std::to_string(default);
+		Config::variables[key] = std::to_string(def);
 	}
 
 	if (Config::variables[key] == "true") {
@@ -127,48 +128,48 @@ bool vpg::Config::get_boolean(const std::string& key, bool default) {
 		return false;
 	}
 	else {
-		Config::variables[key] = default ? "true" : "false";
-		return default;
+		Config::variables[key] = def ? "true" : "false";
+		return def;
 	}
 }
 
-int64_t Config::get_integer(const std::string& key, int64_t default) {
+int64_t Config::get_integer(const std::string& key, int64_t def) {
 	std::lock_guard guard(Config::mutex);
 
 	if (Config::variables.find(key) == Config::variables.end()) {
-		Config::variables[key] = std::to_string(default);
+		Config::variables[key] = std::to_string(def);
 	}
 
 	try {
 		return std::stoll(Config::variables[key]);
 	}
 	catch (...) {
-		Config::variables[key] = std::to_string(default);
-		return default;
+		Config::variables[key] = std::to_string(def);
+		return def;
 	}
 }
 
-double Config::get_float(const std::string& key, double default) {
+double Config::get_float(const std::string& key, double def) {
 	std::lock_guard guard(Config::mutex);
 
 	if (Config::variables.find(key) == Config::variables.end()) {
-		Config::variables[key] = std::to_string(default);
+		Config::variables[key] = std::to_string(def);
 	}
 
 	try {
 		return std::stod(Config::variables[key]);
 	}
 	catch (...) {
-		Config::variables[key] = std::to_string(default);
-		return default;
+		Config::variables[key] = std::to_string(def);
+		return def;
 	}
 }
 
-std::string Config::get_string(const std::string& key, const std::string& default) {
+std::string Config::get_string(const std::string& key, const std::string& def) {
 	std::lock_guard guard(Config::mutex);
 
 	if (Config::variables.find(key) == Config::variables.end()) {
-		Config::variables[key] = default;
+		Config::variables[key] = def;
 	}
 
 	return Config::variables[key];

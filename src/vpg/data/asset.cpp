@@ -18,6 +18,7 @@ Asset::Asset(
     this->is_dynamic = is_dynamic;
     this->load_fn = load_fn;
     this->unload_fn = unload_fn;
+    this->ref_count = 0;
     this->data = nullptr;
 }
 

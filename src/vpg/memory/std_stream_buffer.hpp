@@ -3,6 +3,7 @@
 #include <vpg/memory/stream_buffer.hpp>
 
 #include <cstdio>
+#include <cstddef>
 
 namespace vpg::memory {
     class STDStreamBuffer : public StreamBuffer {

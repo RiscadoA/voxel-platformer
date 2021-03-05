@@ -29,7 +29,7 @@ namespace vpg::gl {
         ~Attribute() = default;
 
     private:
-        friend class VertexArray;
+	friend class VertexArray;
 
         const VertexBuffer& buffer;
         size_t stride;
@@ -54,8 +54,6 @@ namespace vpg::gl {
         void bind() const;
 
     private:
-        friend class VertexArray;
-
         VertexArray(unsigned int vao);
 
         unsigned int vao;

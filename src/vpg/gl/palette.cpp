@@ -1,6 +1,6 @@
 #include <vpg/gl/palette.hpp>
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <cstring>
 
 using namespace vpg::gl;

@@ -3,6 +3,7 @@
 #include <vpg/gl/usage.hpp>
 
 #include <cstdint>
+#include <cstddef>
 
 namespace vpg::gl {
     class IndexBuffer final {

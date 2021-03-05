@@ -53,7 +53,7 @@ namespace vpg::ecs {
     }
 
     template<typename T>
-    inline static T& Coordinator::add_component(Entity entity, const typename T::Info& create_info) {
+    inline T& Coordinator::add_component(Entity entity, const typename T::Info& create_info) {
         auto& ret = Coordinator::component_manager->add_component<T>(entity, create_info);
         auto signature = Coordinator::entity_manager->get_signature(entity);
         signature.set(Coordinator::component_manager->get_component_type<T>(), true);

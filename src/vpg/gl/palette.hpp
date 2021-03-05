@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <initializer_list>
 
 namespace vpg::gl {
     // struct Material {

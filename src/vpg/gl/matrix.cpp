@@ -114,7 +114,7 @@ bool vpg::gl::matrix_to_mesh(
                                 dv[v] = h;
 
                                 auto vi = vertices.size();
-                                vertices.resize(vi + 4, { offset, back_face ? -q : q, unsigned char(mask[n] - 1) });
+                                vertices.resize(vi + 4, { offset, back_face ? -q : q, (unsigned char)(mask[n] - 1) });
                                 vertices[vi + 0].pos += glm::vec3(x);
                                 vertices[vi + 1].pos += glm::vec3(x + du);
                                 vertices[vi + 2].pos += glm::vec3(x + du + dv);

@@ -21,7 +21,7 @@
 #include <vpg/physics/collider.hpp>
 
 #include <glm/glm.hpp>
-#include <gl/glew.h>
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
 #include <iostream>
@@ -82,7 +82,10 @@ void APIENTRY gl_debug_output(
 int main(int argc, char** argv) {
     Config::load(argc, argv);
 
-    input::Window::init();
+    if (!input::Window::init()) {
+	std::cerr << "vpg::input::Window::init() failed:\n";
+    	return 0;
+    }
 
     // Initialize GLEW
     GLenum glew_status = glewInit();

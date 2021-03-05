@@ -72,7 +72,7 @@ namespace vpg::ecs {
     template<typename T>
     inline void Behaviour::register_type() {
         static_assert(std::is_base_of<IBehaviour, T>::value);
-        static_assert(std::is_base_of<IBehaviour::Info, T::Info>::value);
+        static_assert(std::is_base_of<IBehaviour::Info, typename T::Info>::value);
         
         if (Behaviour::constructors.find(T::TypeName) != Behaviour::constructors.end()) {
             std::cerr << "vpg::ecs::Behaviour::register_type() failed:\n"
@@ -81,11 +81,11 @@ namespace vpg::ecs {
         }
 
         Behaviour::info_constructors.emplace(T::TypeName, []() -> IBehaviour::Info* {
-            return new T::Info();
+            return new typename T::Info();
         });
 
         Behaviour::constructors.emplace(T::TypeName, [](Entity entity, const IBehaviour::Info* create_info) -> IBehaviour* {
-            return new T(entity, *((const T::Info*)create_info));
+            return new T(entity, *((const typename T::Info*)create_info));
         });
     }
 
@@ -97,7 +97,7 @@ namespace vpg::ecs {
     };
 
     template<typename T>
-    inline static Behaviour::Info Behaviour::Info::create(typename T::Info&& info) {
+    inline Behaviour::Info Behaviour::Info::create(typename T::Info&& info) {
         Info ret;
         ret.info = new typename T::Info(std::move(info));
         ret.name = T::TypeName;
