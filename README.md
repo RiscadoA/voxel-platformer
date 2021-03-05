@@ -4,6 +4,8 @@ This is a simple platformer game I made from scratch in one week (from
 27/02/2021 to 05/03/2021).
 I reused a small amount of code from my previous voxel experiments (the meshing
 algorithm and the Qubicle file parser).
+I wrote an article about my experience making this game, you can read it
+[here](https://riscadoa.com/game-dev/voxel-platformer/).
 
 ## Configuration
 
