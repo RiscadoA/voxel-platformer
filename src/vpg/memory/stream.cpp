@@ -59,6 +59,7 @@ int64_t vpg::memory::Stream::ref_write_to_read(int64_t ref) {
     if (it == this->ref_map.top().end()) {
         auto new_ref = (int64_t)this->ref_map.top().size();
         this->ref_map.top()[ref] = new_ref;
+    	return new_ref;
     }
     else {
         return it->second;

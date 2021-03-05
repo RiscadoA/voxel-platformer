@@ -112,6 +112,8 @@ bool Config::load(int argc, char** argv) {
 			return false;
 		}
 	}
+
+	return true;
 }
 
 bool vpg::Config::get_boolean(const std::string& key, bool def) {
