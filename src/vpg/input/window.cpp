@@ -34,7 +34,7 @@ bool Window::init() {
     Window::handle = glfwCreateWindow(
         fullscreen ? mode->width : Config::get_integer("window.width", 640),
         fullscreen ? mode->height : Config::get_integer("window.height", 480),
-        Config::get_string("window.title", "Ricardo's Voxel Platformer").c_str(),
+        Config::get_string("window.title", "RiscadoA's Voxel Platformer").c_str(),
         fullscreen ? glfwGetPrimaryMonitor() : nullptr,
         nullptr
     );

@@ -45,5 +45,5 @@ $Map
 "Behaviour" "MapController"
 $Player $KillArea
 "scene.entry" "scene.exit" "scene.tutorial" "scene.end_message"
-"scene.jumper.8" "scene.platform.8" "scene.platform.8.32" "scene.wall.8.32" "scene.turret"
+"scene.platform.8" "scene.platform.8.32" "scene.wall.8.32" "scene.turret"
 "scene.base.32" "scene.base.8.32" "scene.grass.1.16"

@@ -15,6 +15,11 @@
           "name": "VCPKG_TARGET_TRIPLET",
           "value": "x64-windows-static",
           "type": "STRING"
+        },
+        {
+          "name": "SHOW_CONSOLE",
+          "value": "True",
+          "type": "BOOL"
         }
       ]
     },
@@ -33,6 +38,11 @@
           "name": "VCPKG_TARGET_TRIPLET",
           "value": "x64-windows-static",
           "type": "STRING"
+        },
+        {
+          "name": "SHOW_CONSOLE",
+          "value": "False",
+          "type": "BOOL"
         }
       ]
     }

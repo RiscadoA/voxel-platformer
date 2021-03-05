@@ -13,7 +13,6 @@ bool MapController::Info::serialize(memory::Stream& stream) const {
     stream.write_string(this->exit.get_asset()->get_id());
     stream.write_string(this->tutorial.get_asset()->get_id());
     stream.write_string(this->end_message.get_asset()->get_id());
-    stream.write_string(this->jumper_8.get_asset()->get_id());
     stream.write_string(this->platform_8.get_asset()->get_id());
     stream.write_string(this->platform_8_32.get_asset()->get_id());
     stream.write_string(this->wall_8_32.get_asset()->get_id());
@@ -31,7 +30,6 @@ bool MapController::Info::deserialize(memory::Stream& stream) {
     this->exit = data::Manager::load<data::Text>(stream.read_string());
     this->tutorial = data::Manager::load<data::Text>(stream.read_string());
     this->end_message = data::Manager::load<data::Text>(stream.read_string());
-    this->jumper_8 = data::Manager::load<data::Text>(stream.read_string());
     this->platform_8 = data::Manager::load<data::Text>(stream.read_string());
     this->platform_8_32 = data::Manager::load<data::Text>(stream.read_string());
     this->wall_8_32 = data::Manager::load<data::Text>(stream.read_string());
@@ -46,7 +44,6 @@ bool MapController::Info::deserialize(memory::Stream& stream) {
 MapController::MapController(vpg::ecs::Entity entity, const Info& info) {
     this->tutorial = info.tutorial;
     this->end_message = info.end_message;
-    this->jumper_8 = info.jumper_8;
     this->platform_8 = info.platform_8;
     this->platform_8_32 = info.platform_8_32;
     this->wall_8_32 = info.wall_8_32;
@@ -75,7 +72,7 @@ MapController::MapController(vpg::ecs::Entity entity, const Info& info) {
 
     this->player = (PlayerInstance*)ecs::Coordinator::get_component<ecs::Behaviour>(info.player)->get();
 
-    this->level_num = 5;
+    this->level_num = 0;
     this->gen_level();
 }
 

@@ -151,10 +151,13 @@ target_link_libraries(vpg PUBLIC glm)
 find_package(glfw3 REQUIRED)
 target_link_libraries(vpg PRIVATE glfw)
 
-find_package(freetype CONFIG REQUIRED)
-target_link_libraries(vpg PRIVATE freetype)
-
+if(NOT MSVC)
 add_executable(game ${GAME_SOURCE_FILES})
+else()
+add_executable(game WIN32 ${GAME_SOURCE_FILES})
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
+endif()
+
 set_target_properties(game PROPERTIES
 	CXX_STANDARD 17
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
