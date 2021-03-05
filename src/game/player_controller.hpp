@@ -52,7 +52,7 @@ struct PlayerController : public ecs::IBehaviour {
     glm::vec3 lhand_pos, rhand_pos;
 
     glm::vec3 velocity;
-    glm::vec3 floor_velocity;
+    glm::vec3 floor_velocity, last_dir;
 
     glm::vec2 last_mouse;
     float sensitivity;

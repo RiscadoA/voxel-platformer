@@ -1,4 +1,4 @@
-# Entry island
+# Platform
 1
 
 $Base
@@ -9,9 +9,9 @@ $Null			# Parent
 2.0 2.0 2.0 	# Scale
 0.0 0.0 0.0 1.0 # Rotation
 "Collider" "Static" "AABB"
--8.0 -4.0 -8.0 # Min
-+8.0 +4.0 +8.0 # Max
-"Renderable" "Model" "model.base.8"
+-8.0 -1.0 -32.0 # Min
++8.0 +1.0 +32.0 # Max
+"Renderable" "Model" "model.base.8.32"
 "Behaviour" "Platform"
 -100.0 0.0 0.0
 +100.0 0.0 0.0

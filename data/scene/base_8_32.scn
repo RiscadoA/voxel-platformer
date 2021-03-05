@@ -1,0 +1,14 @@
+# Base 8x32
+1
+
+$Root
+3
+"Transform"
+$Null			# Parent
+0.0 0.0 0.0 	# Position
+2.0 2.0 2.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Collider" "Static" "AABB"
+-16.0 -4.0 -64.0 # Min
++16.0 +4.0 +64.0 # Max
+"Renderable" "Model" "model.base.8.32"

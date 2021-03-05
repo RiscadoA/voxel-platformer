@@ -1,0 +1,11 @@
+# End message
+1
+
+$Root
+2
+"Transform"
+$Null			# Parent
+0.0 0.0 0.0 	# Position
+1.0 1.0 1.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Renderable" "Model" "model.end_message"

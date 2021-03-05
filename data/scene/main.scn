@@ -9,8 +9,8 @@ $Null
 1.0 1.0 1.0 			# Scale
 -0.44 -0.02 -0.59 0.67	# Rotation
 "Light" "Directional"
-0.3 0.3 0.3 			# Ambient RGB
-0.7 0.7 0.7 			# Diffuse RGB
+0.6 0.6 0.6 			# Ambient RGB
+1.0 1.0 1.0 			# Diffuse RGB
 
 $Camera
 2				# Number of components
@@ -44,6 +44,6 @@ $Map
 1				# Number of components
 "Behaviour" "MapController"
 $Player $KillArea
-"scene.entry" "scene.exit" "scene.tutorial"
-"scene.platform" "scene.turret"
-"scene.grass.1.16"
+"scene.entry" "scene.exit" "scene.tutorial" "scene.end_message"
+"scene.jumper.8" "scene.platform.8" "scene.platform.8.32" "scene.wall.8.32" "scene.turret"
+"scene.base.32" "scene.base.8.32" "scene.grass.1.16"

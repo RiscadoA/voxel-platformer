@@ -61,6 +61,7 @@ void Turret::fire() {
     bullet->look_at(bullet->get_position() - transform->get_forward(), { 0.0f, 1.0f, 0.0f });
     auto behaviour = (Bullet*)ecs::Coordinator::get_component<ecs::Behaviour>(e)->get();
     behaviour->speed = this->speed;
+    this->bullets[this->next_bullet] = e;
 
     this->next_bullet += 1;
     if (this->next_bullet >= (int)this->bullets.size()) {

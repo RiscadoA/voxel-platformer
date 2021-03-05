@@ -114,6 +114,8 @@ set (GAME_SOURCE_FILES
 	"src/game/turret.cpp"
 	"src/game/bullet.hpp"
 	"src/game/bullet.cpp"
+	"src/game/jumper.hpp"
+	"src/game/jumper.cpp"
 )
 
 add_library(vpg ${VPG_SOURCE_FILES})

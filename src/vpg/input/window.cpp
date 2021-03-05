@@ -28,11 +28,14 @@ bool Window::init() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
+    bool fullscreen = Config::get_boolean("window.fullscreen", false);
+
+    const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
     Window::handle = glfwCreateWindow(
-        Config::get_integer("window.width", 640),
-        Config::get_integer("window.height", 480),
-        Config::get_string("window.title", "VPG").c_str(),
-        Config::get_boolean("window.fullscreen", false) ? glfwGetPrimaryMonitor() : nullptr,
+        fullscreen ? mode->width : Config::get_integer("window.width", 640),
+        fullscreen ? mode->height : Config::get_integer("window.height", 480),
+        Config::get_string("window.title", "Ricardo's Voxel Platformer").c_str(),
+        fullscreen ? glfwGetPrimaryMonitor() : nullptr,
         nullptr
     );
 

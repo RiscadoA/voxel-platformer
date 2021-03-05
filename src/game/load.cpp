@@ -5,6 +5,7 @@
 #include "map_controller.hpp"
 #include "player_instance.hpp"
 #include "player_controller.hpp"
+#include "jumper.hpp"
 #include "platform.hpp"
 #include "turret.hpp"
 #include "bullet.hpp"
@@ -16,6 +17,7 @@ bool load_game(Scene* scene) {
     Behaviour::register_type<MapController>();
     Behaviour::register_type<PlayerInstance>();
     Behaviour::register_type<PlayerController>();
+    Behaviour::register_type<Jumper>();
     Behaviour::register_type<Platform>();
     Behaviour::register_type<Turret>();
     Behaviour::register_type<Bullet>();

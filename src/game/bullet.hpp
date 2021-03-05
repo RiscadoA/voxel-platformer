@@ -18,6 +18,15 @@ struct Bullet : public ecs::IBehaviour {
 
     virtual void update(float dt) override;
 
+    enum class Mode {
+        Straight,
+        Orbit,
+    };
+
+    Mode mode = Mode::Straight;
     ecs::Entity entity;
-    float speed;
+    glm::vec3 velocity;
+    glm::vec3 last_pos;
+    glm::vec3 center;
+    float radius, speed, angle;
 };

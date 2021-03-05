@@ -1,0 +1,16 @@
+# Platform
+1
+
+$Jumper
+4
+"Transform"
+$Null			# Parent
+0.0 0.0 0.0 	# Position
+2.0 2.0 2.0 	# Scale
+0.0 0.0 0.0 1.0 # Rotation
+"Collider" "Static" "AABB"
+-8.0 -4.0 -8.0 # Min
++8.0 +4.0 +8.0 # Max
+"Renderable" "Model" "model.jumper.8"
+"Behaviour" "Jumper"
+125.0

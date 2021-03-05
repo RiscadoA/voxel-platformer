@@ -1,4 +1,5 @@
 #include "player_controller.hpp"
+#include "jumper.hpp"
 #include "platform.hpp"
 #include "bullet.hpp"
 
@@ -144,6 +145,7 @@ void PlayerController::update(float dt) {
     }
 
     if (input.x == 0.0f && input.y == 0.0f) {
+        this->last_dir = glm::vec3(0.0f, 0.0f, 0.0f);
         this->time += dt * 5.0f;
         this->time = glm::clamp(this->time, 0.0f, 1.0f);
         torso->set_position(glm::mix(torso->get_position(), this->torso_pos, time));
@@ -152,6 +154,7 @@ void PlayerController::update(float dt) {
         lhand->set_position(glm::mix(lhand->get_position(), this->lhand_pos, time));
         rhand->set_position(glm::mix(rhand->get_position(), this->rhand_pos, time));
         if (this->on_floor) {
+            this->velocity.y = this->floor_velocity.y;
             this->velocity = glm::mix(this->velocity, this->floor_velocity, 30.0f * dt);
         }
     }
@@ -159,6 +162,7 @@ void PlayerController::update(float dt) {
         glm::vec3 desired_dir = camera->get_right() * input.x + camera->get_forward() * input.y;
         desired_dir.y = 0.0f;
         desired_dir = glm::normalize(desired_dir);
+        this->last_dir = desired_dir;
         transform->look_at(transform->get_global_position() + glm::mix(
             transform->get_forward(),
             -desired_dir,
@@ -179,6 +183,7 @@ void PlayerController::update(float dt) {
             lhand->set_position(glm::mix(lhand->get_position(), desired_lhand, dt * 10.0f));
             rhand->set_position(glm::mix(rhand->get_position(), desired_rhand, dt * 10.0f));
 
+            this->velocity.y = this->floor_velocity.y;
             this->velocity = glm::mix(this->velocity, this->floor_velocity + desired_dir * speed, 25.0f * dt);
         }
         else {
@@ -189,7 +194,7 @@ void PlayerController::update(float dt) {
     }
 
     if (Keyboard::is_key_pressed(Key::Space) && this->on_floor) {
-        this->velocity.y = 50.0f;
+        this->velocity.y += 50.0f;
     }
 
     this->on_floor = false;
@@ -197,10 +202,10 @@ void PlayerController::update(float dt) {
 }
 
 void PlayerController::on_feet_collision(const physics::Manifold& manifold) {
-    if (this->velocity.y < 0.0f && !this->on_floor && !this->respawned) {
+    if (!this->on_floor && !this->respawned) {
         this->floor_velocity = { 0.0f, 0.0f, 0.0f };
 
-        bool was_bullet = false;
+        bool was_floor = true;
         auto behaviour = ecs::Coordinator::get_component<ecs::Behaviour>(manifold.a == this->entity ? manifold.b : manifold.a);
         if (behaviour != nullptr) {
             auto platform = dynamic_cast<Platform*>(behaviour->get());
@@ -208,23 +213,28 @@ void PlayerController::on_feet_collision(const physics::Manifold& manifold) {
                 this->floor_velocity = platform->velocity;
             }
 
+            auto jumper = dynamic_cast<Jumper*>(behaviour->get());
+            if (jumper != nullptr) {
+                glm::vec3 dir = this->last_dir;
+                //dir.y = 5.0f;
+                this->velocity.y = -this->velocity.y;
+                //this->velocity += glm::normalize(dir) * jumper->bounciness;
+                was_floor = false;
+            }
+
             auto bullet = dynamic_cast<Bullet*>(behaviour->get());
             if (bullet != nullptr) {
-                this->velocity += manifold.normal * bullet->speed * 2.0f;
-                glm::vec3 t = { 0.0f, 0.0f, 0.0f };
-                t.x = (float)(rand() % 100) / 50.0f - 1.0f;
-                t.z = (float)(rand() % 100) / 50.0f - 1.0f;
-                t = glm::normalize(t);
-                this->velocity += t * bullet->speed * 2.0f;
-                was_bullet = true;
+                this->velocity += manifold.normal * bullet->speed + bullet->velocity;
+                this->velocity.y += bullet->speed;
+                was_floor = false;
             }
         }
 
         auto transform = ecs::Coordinator::get_component<ecs::Transform>(this->entity);
         transform->translate(manifold.normal * manifold.penetration);
 
-        if (!was_bullet) {
-            this->velocity.y = 0.0f;
+        if (was_floor) {
+            this->velocity.y = this->floor_velocity.y;
             this->on_floor = true;
         }
     }
@@ -239,8 +249,8 @@ void PlayerController::on_body_collision(const physics::Manifold& manifold) {
     if (behaviour != nullptr) {
         auto bullet = dynamic_cast<Bullet*>(behaviour->get());
         if (bullet != nullptr) {
-            this->velocity += manifold.normal * bullet->speed * 2.0f;
-            this->velocity.y += bullet->speed * 2.0f;
+            this->velocity += manifold.normal * bullet->speed;
+            this->velocity.y += bullet->speed;
             was_bullet = true;
         }
     }

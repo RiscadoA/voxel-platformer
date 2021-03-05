@@ -66,7 +66,8 @@ void main() {
 
     // Sky
     vec3 sky_dir = normalize(inverse(mat3(view)) * (inverse(proj) * vec4(frag_uv * 2.0f - 1.0f, 0.0f, 1.0f)).xyz);
-    vec3 sky_color = mix(vec3(0.1, 0.4, 0.6), vec3(0.2, 0.6, 0.9), clamp(sky_dir.y / 1.5f + 0.5f, 0.0, 1.0));
+    vec3 sky_color = mix(vec3(0.6, 0.6, 0.8), vec3(0.0, 0.0, 1.0), clamp(sky_dir.y / 1.5f + 0.0f, 0.0, 1.0));
+    //vec3 sky_color = mix(vec3(0.1, 0.4, 0.6), vec3(0.2, 0.6, 0.9), clamp(sky_dir.y / 1.5f + 0.5f, 0.0, 1.0));
     
     if (normal.x == 0.0f && normal.y == 0.0f && normal.z == 0.0f) {
         lighting = sky_color;

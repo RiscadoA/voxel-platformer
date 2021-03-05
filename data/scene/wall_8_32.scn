@@ -1,0 +1,18 @@
+# Platform
+1
+
+$Base
+4
+"Transform"
+$Null			# Parent
+0.0 0.0 0.0 	# Position
+2.0 2.0 2.0 	# Scale
+0.5 -0.5 -0.5 0.5 # Rotation
+"Collider" "Static" "AABB"
+-32.0 -8.0 -1.0 # Min
++32.0 +8.0 +1.0 # Max
+"Renderable" "Model" "model.base.8.32"
+"Behaviour" "Platform"
+-100.0 0.0 0.0
++100.0 0.0 0.0
+20.0
